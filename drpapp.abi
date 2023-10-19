@@ -1,0 +1,290 @@
+{
+    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT ",
+    "version": "eosio::abi/1.2",
+    "types": [],
+    "structs": [
+        {
+            "name": "addcase",
+            "base": "",
+            "fields": [
+                {
+                    "name": "community",
+                    "type": "name"
+                }
+            ]
+        },
+        {
+            "name": "addconfig",
+            "base": "",
+            "fields": [
+                {
+                    "name": "community",
+                    "type": "name"
+                }
+            ]
+        },
+        {
+            "name": "cases",
+            "base": "",
+            "fields": [
+                {
+                    "name": "claimant_name",
+                    "type": "name"
+                },
+                {
+                    "name": "case_id",
+                    "type": "uint64"
+                },
+                {
+                    "name": "number",
+                    "type": "uint64"
+                },
+                {
+                    "name": "stage",
+                    "type": "uint8"
+                },
+                {
+                    "name": "nr_of_requested_arbitrators",
+                    "type": "uint8"
+                },
+                {
+                    "name": "case_description",
+                    "type": "string"
+                },
+                {
+                    "name": "arbitrators",
+                    "type": "pair_name_uint8[]"
+                },
+                {
+                    "name": "claims",
+                    "type": "string[]"
+                },
+                {
+                    "name": "fine",
+                    "type": "asset[]"
+                },
+                {
+                    "name": "relief",
+                    "type": "asset[]"
+                },
+                {
+                    "name": "suspension",
+                    "type": "uint16[]"
+                },
+                {
+                    "name": "request_ban",
+                    "type": "bool"
+                },
+                {
+                    "name": "claimants_evidence_description",
+                    "type": "string"
+                },
+                {
+                    "name": "claimants_ipfs_cids",
+                    "type": "string[]"
+                },
+                {
+                    "name": "claimants_deposit",
+                    "type": "asset"
+                },
+                {
+                    "name": "claimants_requested_deposit",
+                    "type": "bool"
+                },
+                {
+                    "name": "claimants_telegram",
+                    "type": "string"
+                },
+                {
+                    "name": "respondents_telegram",
+                    "type": "string"
+                },
+                {
+                    "name": "respondents_account",
+                    "type": "name"
+                },
+                {
+                    "name": "other_info_about_respondent",
+                    "type": "string"
+                },
+                {
+                    "name": "accusations_accepted_by_respondent",
+                    "type": "bool"
+                },
+                {
+                    "name": "respondents_response",
+                    "type": "string"
+                },
+                {
+                    "name": "respondents_ipfs_cids",
+                    "type": "string[]"
+                },
+                {
+                    "name": "respondents_evidents_description",
+                    "type": "string"
+                },
+                {
+                    "name": "fine_counter",
+                    "type": "asset[]"
+                },
+                {
+                    "name": "relief_counter",
+                    "type": "asset[]"
+                },
+                {
+                    "name": "suspension_counter",
+                    "type": "uint16[]"
+                },
+                {
+                    "name": "respondent_deposit",
+                    "type": "asset"
+                },
+                {
+                    "name": "respondent_requested_deposit",
+                    "type": "bool"
+                },
+                {
+                    "name": "case_winner",
+                    "type": "name"
+                },
+                {
+                    "name": "fine_verdict",
+                    "type": "asset[]"
+                },
+                {
+                    "name": "relief_verdict",
+                    "type": "asset[]"
+                },
+                {
+                    "name": "suspension_verdict",
+                    "type": "uint16[]"
+                },
+                {
+                    "name": "verdict_description",
+                    "type": "string"
+                },
+                {
+                    "name": "arbitrator_and_signatures",
+                    "type": "pair_name_uint8[]"
+                },
+                {
+                    "name": "ipfs_cid_verdict",
+                    "type": "string[]"
+                }
+            ]
+        },
+        {
+            "name": "config",
+            "base": "",
+            "fields": [
+                {
+                    "name": "community",
+                    "type": "name"
+                },
+                {
+                    "name": "community_name",
+                    "type": "string"
+                },
+                {
+                    "name": "community_description",
+                    "type": "string"
+                },
+                {
+                    "name": "rec_num_of_arb_and_claim_type",
+                    "type": "pair_uint8_string[]"
+                },
+                {
+                    "name": "min_arb_per_case",
+                    "type": "uint8"
+                },
+                {
+                    "name": "max_arb_per_case",
+                    "type": "uint8"
+                },
+                {
+                    "name": "min_deposit",
+                    "type": "asset"
+                },
+                {
+                    "name": "lead_arb_cut",
+                    "type": "uint8"
+                },
+                {
+                    "name": "other_arb_cut",
+                    "type": "uint8"
+                },
+                {
+                    "name": "time_for_arb_to_accept_the_case",
+                    "type": "uint32"
+                },
+                {
+                    "name": "time_for_respondent_to_acknowledge_the_case",
+                    "type": "uint32"
+                },
+                {
+                    "name": "time_for_respondent_to_respond_the_case",
+                    "type": "uint32"
+                }
+            ]
+        },
+        {
+            "name": "pair_name_uint8",
+            "base": "",
+            "fields": [
+                {
+                    "name": "key",
+                    "type": "name"
+                },
+                {
+                    "name": "value",
+                    "type": "uint8"
+                }
+            ]
+        },
+        {
+            "name": "pair_uint8_string",
+            "base": "",
+            "fields": [
+                {
+                    "name": "key",
+                    "type": "uint8"
+                },
+                {
+                    "name": "value",
+                    "type": "string"
+                }
+            ]
+        }
+    ],
+    "actions": [
+        {
+            "name": "addcase",
+            "type": "addcase",
+            "ricardian_contract": ""
+        },
+        {
+            "name": "addconfig",
+            "type": "addconfig",
+            "ricardian_contract": ""
+        }
+    ],
+    "tables": [
+        {
+            "name": "cases",
+            "type": "cases",
+            "index_type": "i64",
+            "key_names": [],
+            "key_types": []
+        },
+        {
+            "name": "config",
+            "type": "config",
+            "index_type": "i64",
+            "key_names": [],
+            "key_types": []
+        }
+    ],
+    "ricardian_clauses": [],
+    "variants": [],
+    "action_results": []
+}

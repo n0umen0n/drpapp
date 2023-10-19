@@ -1,0 +1,130 @@
+dune -- cdt-cpp -abigen /host/Users/vlad/Desktop/drpapp/drpapp.cpp -o /host/Users/vlad/Desktop/drpapp/drpapp.wasm
+
+ cleos -u https://api.wax.alohaeos.com set contract chat /Users/vlad/Desktop/drpapp drpapp.wasm drpapp.abi 
+
+Hardcoded:
+Stages 
+1 - Waiting for arbitrators to accept the case
+2 - Waiting for respondent to acknowledge the case
+3 - Waiting for respondent to respond to the case
+4 - Waiting for lead arbitrator to give verdict
+5 - Waiting for arbitrators to sign the verdict
+6 - Case closed
+
+
+
+
+(contains all the configurations)
+ACTION
+addcommunity(name community_account, string community_name, uint8 max_arb_per_case, uint8 min_arb_per_case, asset min_deposit, asset min_deposit, 
+uint16 lead_arb_cut, uint16 other_arb_cut, uint64 time_for_arb_to_accept_the_case, uint64 time_for_respondent_to_acknowledge_the_case, vector name arbitrators )
+
+
+
+ACTION
+setrespondacc ()
+
+ACTION
+createcase ()
+
+This action includes the random picking of the arbitrators.
+
+ACTION
+acknowcase (name respondent, uint64 case_id)
+
+ACTION
+setarbitrators ()
+
+ACTION
+delarbitrators
+
+ACTION
+signuparb
+
+ACTION
+resignarb
+
+ACTION
+acceptarbtrn
+
+ACTION
+rejectarbtrtn
+
+ACTION
+submitverd
+
+ACTION
+signverd
+
+on_notify
+transfer to drpappdrpapp
+memo case id
+
+
+
+
+
+(id is unique, number secondary index might be the same)
+
+
+
+
+Table cases
+
+claimant name
+uint64 case_id
+uint8 number
+uint8 stage
+uint8 nr_of_requested_arbitrators
+string case_description
+map name uint8 arbitators (uint8 = 1 means arbitrator accepted case, 0 means has not accepted)
+vector string claims
+vector asset fine
+vector asset relief
+vector uint16 suspension
+bool request_ban
+string claimants_evidence_description
+vector string claimants_ipfs_cids
+asset claimants_deposit
+bool claimants_requested_deposit
+string claimants_telegram 
+string respondents_telgram
+name respondents_account
+string other_info_about_respondent;
+bool accusations_accepted_by_respondent
+
+
+string respondents_response
+vector string repspondents_ipfs_cids
+string respondents_evidents_description
+
+(peaks minema nulli kui ta mingile claimile ei submiti midagi)
+vector asset fine_counter
+vector asset relief_counter
+vector uint16 suspension_counter
+asset respondent_deposit
+bool respondent_requested_deposit
+
+name case_winner
+vector asset fine_verdict
+vector asset relief_verdict
+vector uint16 suspension_verdict
+string verdict_description
+map name and uint8 arbitrator and signatures.
+vector string ipfs_cid_verdict
+
+
+Table config
+
+name community
+string community_name
+string community_description. 
+map (rec_num_of_arb, claim_type)
+uint8 min_arb_per_case
+uint8 max_arb_per_case
+asset min_deposit
+lead_arb_cut 
+other_arb_cut
+time_for_arb_to_accept_the_case
+time_for_respondent_to_acknowledge_the_case
+time_for_respondent_to_respond_the_case
