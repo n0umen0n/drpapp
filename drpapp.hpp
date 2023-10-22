@@ -36,6 +36,7 @@ public:
     {
         name claimant_name;
         uint64_t case_id;
+        time_point_sec case_start_time;
         uint64_t number;
         uint8_t stage;
         uint8_t nr_of_requested_arbitrators;
@@ -55,6 +56,8 @@ public:
         name respondents_account;
         string other_info_about_respondent;
         bool accusations_accepted_by_respondent;
+        time_point_sec case_acknowledged_by_respondent_time;
+        bool case_acknowledged_by_respondent;
         string respondents_response;
         vector<string> respondents_ipfs_cids;
         string respondents_evidents_description;
@@ -112,7 +115,6 @@ public:
 
     drpapp(name self, name code, datastream<const char *> ds);
 
-    ACTION createcase();
     ACTION addcase(name community);
     ACTION addconfig(name community);
     ACTION delcase(name community,uint64_t case_id);
@@ -120,7 +122,9 @@ public:
     ACTION delarbs(name community, vector<name> arbitrator_names);
     ACTION createcase(name community, name claimant_name, uint64_t number, uint8_t nr_of_requested_arbitrators, string case_description, map<name, uint8_t> arbitrators, vector<string> claims, vector<asset> fine, vector<asset> relief, vector<uint16_t> suspension, bool request_ban, string claimants_evidence_description, vector<string> claimants_ipfs_cids, asset claimants_deposit, bool claimants_requested_deposit, map<name, string> claimants_socials, map<name, string> respondents_socials, name respondents_account, string other_info_about_respondent);
     ACTION acceptarbtrn(name arbitrator, uint64_t case_id, name community);
-    
+    ACTION acknwdgcase(name respondent, name community, uint64_t case_id);
+    ACTION swaparb(uint64_t case_id, name community)
+
 
 
 

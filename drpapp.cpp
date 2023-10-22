@@ -72,6 +72,7 @@ void drpapp::createcase(name community, name claimant_name, uint64_t number, uin
     cases_t cases_table(get_self(), community.value);
     cases_table.emplace(_self, [&](auto& row) {
         row.case_id = cases_table.available_primary_key();
+        row.case_started = current_time_point();
         row.claimant_name = claimant_name;
         row.number = number;
         row.stage = 1;
@@ -194,6 +195,87 @@ void drpapp::rejectarbtrn(name arbitrator, uint64_t case_id, name community)
         row.arbitrators[new_arbitrator] = 0;
     });
 }
+
+
+void drpapp::swaparb(uint64_t case_id, name community) 
+{
+
+    cases_t cases_table(get_self(), community.value); // Set the scope to the community name
+
+    // Find the case based on case_id
+    auto case_itr = cases_table.find(case_id);
+    check(case_itr != cases_table.end(), "Case does not exist!");
+
+    config_t config_table(get_self(), community.value);
+    auto config_itr = config_table.find(community.value);
+    check(config_itr != config_table.end(), "Configuration for community not found!");
+
+    time_point_sec current_time = current_time_point();
+    time_point_sec deadline = case_itr->case_start_time + seconds(config_itr->time_for_arb_to_accept_the_case);
+
+    if(current_time > deadline) {
+        // Fetch all available arbitrators
+        arbitrators_t arbs_table(get_self(), community.value);
+        vector<name> all_arbitrators;
+        for (auto itr = arbs_table.begin(); itr != arbs_table.end(); ++itr) {
+            all_arbitrators.push_back(itr->arbitrator);
+        }
+
+        // Shuffle to get a random order
+        rng_t rndnmbr("r4ndomnumb3r"_n, "r4ndomnumb3r"_n.value);
+        checksum256 x = rndnmbr.get().value;
+        uint32_t seed = *reinterpret_cast<uint32_t*>(&x);
+        my_shuffle(all_arbitrators.begin(), all_arbitrators.end(), seed);
+
+        // Iterate over case arbitrators and replace the ones that have not accepted
+        for(auto& pair : case_itr->arbitrators) {
+            if(pair.second == 0) { // Arbitrator did not accept the case
+                // Find a new arbitrator that is not in the current arbitrators map
+                name new_arbitrator;
+                for (auto& arb_name : all_arbitrators) {
+                    if (case_itr->arbitrators.find(arb_name) == case_itr->arbitrators.end()) {
+                        new_arbitrator = arb_name;
+                        break;
+                    }
+                }
+                check(is_account(new_arbitrator), "Failed to find a replacement arbitrator.");
+
+                // Modify the case: replace the arbitrator
+                cases_table.modify(case_itr, get_self(), [&](auto& row) {
+                    row.arbitrators.erase(pair.first);
+                    row.arbitrators[new_arbitrator] = 0;
+                    row.case_start_time = current_time_point();
+                });
+            }
+        }
+    }
+}
+
+
+void drpapp::acknwdgcase(name respondent, name community, uint64_t case_id) 
+{
+    require_auth(respondent); // Ensuring that the action is initiated by the respondent.
+
+    // Fetch the cases table with the community as the scope.
+    cases_t cases_table(get_self(), community.value);
+
+    // Find the case using the provided case_id.
+    auto case_itr = cases_table.find(case_id);
+    check(case_itr != cases_table.end(), "Case not found.");
+    
+    // Ensure that the respondent matches the respondent in the case.
+    check(case_itr->respondents_account == respondent, "Account does not match the respondent of the case.");
+
+    // Ensure the case has not already been acknowledged.
+    check(!case_itr->case_acknowledged_by_respondent, "Case has already been acknowledged by the respondent.");
+
+    // Modify the case to set the case_acknowledged_by_respondent to true and set the acknowledgment time.
+    cases_table.modify(case_itr, get_self(), [&](auto& row) {
+        row.case_acknowledged_by_respondent = true;
+        row.case_acknowledged_by_respondent_time = current_time_point();
+    });
+}
+
 
 
 

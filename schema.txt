@@ -68,6 +68,18 @@ transfer to drpappdrpapp
 memo case id
 
 
+ACTION
+swaparbs
+
+TABLE time_limits
+unique id case_id
+time_for_arb_to_accept_the_case
+time_for_respondent_to_acknowledge_the_case
+time_for_respondent_to_respond_the_case
+
+
+
+
 
 
 
