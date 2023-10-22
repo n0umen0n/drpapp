@@ -1,6 +1,10 @@
 dune -- cdt-cpp -abigen /host/Users/vlad/Desktop/drpapp/drpapp.cpp -o /host/Users/vlad/Desktop/drpapp/drpapp.wasm
 
- cleos -u https://api.wax.alohaeos.com set contract chat /Users/vlad/Desktop/drpapp drpapp.wasm drpapp.abi 
+ cleos -u https://eos.greymass.com set contract drpappdrpapp /Users/vlad/Desktop/drpapp drpapp.wasm drpapp.abi 
+
+ cleos -u https://eos.greymass.com push action eosio powerup '{"payer": "vladislav.x", "receiver":"drpappdrpapp", "days":1, "net_frac":2000000, "cpu_frac":200000000, "max_payment":"0.1000 EOS"}' -p vladislav.x 
+
+cleos -u https://eos.greymass.com push action eosio buyram '["drpappdrpapp", "drpappdrpapp", "5.0000 EOS"]' -p drpappdrpapp@active
 
 Hardcoded:
 Stages 
@@ -22,10 +26,13 @@ uint16 lead_arb_cut, uint16 other_arb_cut, uint64 time_for_arb_to_accept_the_cas
 
 
 ACTION
-setrespondacc ()
+setrespondacc (uint64_t case_id, name respondents_account)
+This action modifies the cases table by setting the respondents_account.
+
 
 ACTION
-createcase ()
+createcase (name claimant, uint64_t number, uint8_t nr_of_requested_arbitrators, string case_description, map name uint8 arbitrators, vector string claims, vector asseet fine, vector asset relief, vector uint16 suspension, bool request_ban, string claimants_evidence_description,  string claimants_evidence_description, vector string claimants_ipfs_cids, )
+
 
 This action includes the random picking of the arbitrators.
 
@@ -66,7 +73,9 @@ memo case id
 
 (id is unique, number secondary index might be the same)
 
+Table add_evidence
 
+Table communities
 
 
 Table cases
