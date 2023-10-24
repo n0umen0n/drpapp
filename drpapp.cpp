@@ -95,6 +95,94 @@ void drpapp::createcase(name community, name claimant_name, uint64_t number, uin
     });
 }
 
+void drpapp::joincase(name community, name claimant_name, uint64_t case_id, uint8_t nr_of_requested_arbitrators,
+                      string case_description, vector<string> claims, vector<asset> fine, vector<asset> relief,
+                      vector<uint16_t> suspension, bool request_ban, string claimants_evidence_description, 
+                      vector<string> claimants_ipfs_cids, asset claimants_deposit, bool claimants_requested_deposit, 
+                      map<name, string> claimants_socials, map<name, string> respondents_socials, string other_info_about_respondent) 
+{
+    require_auth(claimant_name);
+    check(case_description.size() <= 2000, "Case description exceeds 2000 characters.");
+    check(claimants_evidence_description.size() <= 2000, "Claimant's evidence description exceeds 2000 characters.");
+    check(other_info_about_respondent.size() <= 2000, "Other info about respondent exceeds 2000 characters.");
+
+    // Other checks (like string lengths for claims, IPFS CIDs, etc.) remain the same as in createcase.
+
+    cases_t cases_table(get_self(), community.value);
+    auto old_case_itr = cases_table.find(case_id);
+    check(old_case_itr != cases_table.end(), "Old case does not exist!");
+
+    rng_t rndnmbr("r4ndomnumb3r"_n, "r4ndomnumb3r"_n.value);
+    checksum256 x = rndnmbr.get().value;
+    uint32_t seed = *reinterpret_cast<uint32_t*>(&x);
+
+    map<name, uint8_t> selected_arbitrators = old_case_itr->arbitrators;
+
+    if(nr_of_requested_arbitrators > old_case_itr->nr_of_requested_arbitrators) 
+    {
+        arbitrators_t arbs_table(get_self(), community.value);
+        vector<name> all_arbitrators;
+
+        for (auto arb_itr = arbs_table.begin(); arb_itr != arbs_table.end(); ++arb_itr) 
+        {
+            all_arbitrators.push_back(arb_itr->arbitrator);
+        }
+
+        my_shuffle(all_arbitrators.begin(), all_arbitrators.end(), seed);
+
+        for (int i = 0; i < (nr_of_requested_arbitrators - old_case_itr->nr_of_requested_arbitrators); i++) 
+        {
+            if(selected_arbitrators.find(all_arbitrators[i]) == selected_arbitrators.end()) 
+            {
+                selected_arbitrators[all_arbitrators[i]] = 0;
+            }
+        }
+    } 
+    else if(nr_of_requested_arbitrators < old_case_itr->nr_of_requested_arbitrators) 
+    {
+        // Select random arbitrators from the old case
+        vector<name> old_arbs;
+        for(const auto& [arb_name, value] : old_case_itr->arbitrators) 
+        {
+            old_arbs.push_back(arb_name);
+        }
+
+        my_shuffle(old_arbs.begin(), old_arbs.end(), seed);
+
+        selected_arbitrators.clear();
+        for(int i = 0; i < nr_of_requested_arbitrators; i++) 
+        {
+            selected_arbitrators[old_arbs[i]] = 0;
+        }
+    }
+
+    cases_table.emplace(_self, [&](auto& row) {
+        row.case_id = cases_table.available_primary_key();
+        row.case_started = current_time_point();
+        row.claimant_name = claimant_name;
+        row.number = old_case_itr->number;
+        row.stage = 1;
+        row.nr_of_requested_arbitrators = nr_of_requested_arbitrators;
+        row.case_description = case_description;
+        row.arbitrators = selected_arbitrators;
+        row.claims = claims;
+        row.fine = fine;
+        row.relief = relief;
+        row.suspension = suspension;
+        row.request_ban = request_ban;
+        row.claimants_evidence_description = claimants_evidence_description;
+        row.claimants_ipfs_cids = claimants_ipfs_cids;
+        row.claimants_deposit = claimants_deposit;
+        row.claimants_requested_deposit = claimants_requested_deposit;
+        row.claimants_socials = claimants_socials;
+        row.respondents_socials = respondents_socials;
+        row.respondents_account = old_case_itr->respondents_account;
+        row.other_info_about_respondent = other_info_about_respondent;
+    });
+}
+
+
+
 void drpapp::addarbs(name community, vector<name> arbitrator_names) 
 {
     require_auth(community);  // Assuming the community itself or a privileged account should do this. Adjust as necessary.
@@ -196,7 +284,7 @@ void drpapp::rejectarbtrn(name arbitrator, uint64_t case_id, name community)
     });
 }
 
-
+//Should be triggered if arbitrators have not accepted nor rejected the case. Certain time period has to pass for this action be triggerable.
 void drpapp::swaparb(uint64_t case_id, name community) 
 {
 
@@ -277,6 +365,108 @@ void drpapp::acknwdgcase(name respondent, name community, uint64_t case_id)
 }
 
 
+void drpapp::addcomm(
+    name community,
+    string community_name,
+    string community_description,
+    map<uint8_t, string> rec_num_of_arb_and_claim_type,
+    uint8_t min_arb_per_case,
+    uint8_t max_arb_per_case,
+    asset min_deposit,
+    uint8_t lead_arb_cut,
+    uint8_t other_arb_cut,
+    uint32_t time_for_arb_to_accept_the_case,
+    uint32_t time_for_respondent_to_acknowledge_the_case,
+    uint32_t time_for_respondent_to_respond_the_case) 
+{
+
+    // Initialize the config table with the scope of community name
+    config_t config_table(get_self(), _self.value);
+
+    // Check if the community configuration already exists
+    auto existing_config = config_table.find(community.value);
+    check(existing_config == config_table.end(), "Community configuration already exists!");
+
+    // Add to the table
+    config_table.emplace(get_self(), [&](auto& row) {
+        row.community = community;
+        row.community_name = community_name;
+        row.community_description = community_description;
+        row.rec_num_of_arb_and_claim_type = rec_num_of_arb_and_claim_type;
+        row.min_arb_per_case = min_arb_per_case;
+        row.max_arb_per_case = max_arb_per_case;
+        row.min_deposit = min_deposit;
+        row.lead_arb_cut = lead_arb_cut;
+        row.other_arb_cut = other_arb_cut;
+        row.time_for_arb_to_accept_the_case = time_for_arb_to_accept_the_case;
+        row.time_for_respondent_to_acknowledge_the_case = time_for_respondent_to_acknowledge_the_case;
+        row.time_for_respondent_to_respond_the_case = time_for_respondent_to_respond_the_case;
+    });
+}
+
+void drpapp::assetin(
+    name from,
+    name to,
+    asset quantity,
+    string memo
+)
+{
+    if(to == _self)
+    {
+        // Split the memo by ',' to extract case_id, depositor type, and community name
+        auto first_comma = memo.find(',');
+        check(first_comma != string::npos && first_comma < memo.size() - 1, "Invalid memo format.");
+
+        auto second_comma = memo.find(',', first_comma + 1);
+        check(second_comma != string::npos && second_comma < memo.size() - 1, "Invalid memo format.");
+
+        uint64_t case_id_val = std::stoull(memo.substr(0, first_comma));
+        string depositor_type = memo.substr(first_comma + 1, second_comma - first_comma - 1);
+        name community_name = name(memo.substr(second_comma + 1));
+
+        deposit_t deposits_table(_self, community_name.value);
+        auto deposit_itr = deposits_table.find(case_id_val);
+
+        if(depositor_type == "claimant") 
+        {
+            if(deposit_itr == deposits_table.end())
+            {
+                deposits_table.emplace(_self, [&](auto& row) {
+                    row.case_id = case_id_val;
+                    row.claimants_deposit = quantity;
+                    row.respondents_deposit = asset(0, quantity.symbol);
+                });
+            } 
+            else 
+            {
+                deposits_table.modify(deposit_itr, _self, [&](auto& row) {
+                    row.claimants_deposit += quantity;
+                });
+            }
+        } 
+        else if(depositor_type == "respondent")
+        {
+            if(deposit_itr == deposits_table.end())
+            {
+                deposits_table.emplace(_self, [&](auto& row) {
+                    row.case_id = case_id_val;
+                    row.claimants_deposit = asset(0, quantity.symbol);
+                    row.respondents_deposit = quantity;
+                });
+            } 
+            else 
+            {
+                deposits_table.modify(deposit_itr, _self, [&](auto& row) {
+                    row.respondents_deposit += quantity;
+                });
+            }
+        } 
+        else 
+        {
+            check(false, "Invalid depositor type in memo.");
+        }
+    }
+}
 
 
 void drpapp::addcase(name community) 

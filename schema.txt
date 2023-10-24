@@ -23,6 +23,8 @@ ACTION
 addcommunity(name community_account, string community_name, uint8 max_arb_per_case, uint8 min_arb_per_case, asset min_deposit, asset min_deposit, 
 uint16 lead_arb_cut, uint16 other_arb_cut, uint64 time_for_arb_to_accept_the_case, uint64 time_for_respondent_to_acknowledge_the_case, vector name arbitrators )
 
+ACTION
+joincase( )
 
 
 ACTION
