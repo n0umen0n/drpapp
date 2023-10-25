@@ -50,6 +50,7 @@ public:
         string claimants_evidence_description;
         vector<string> claimants_ipfs_cids;
         asset claimants_deposit;
+        asset claimants_deposit_paid
         bool claimants_requested_deposit;
         map<name, string> claimants_socials;
         map<name, string> respondents_socials;
@@ -65,6 +66,7 @@ public:
         vector<asset> relief_counter;
         vector<uint16_t> suspension_counter;
         asset respondent_deposit;
+        asset respondent_deposit_paid;
         bool respondent_requested_deposit;
         name case_winner;
         vector<asset> fine_verdict;
@@ -136,6 +138,7 @@ public:
     ACTION swaparb(uint64_t case_id, name community);
     ACTION addcomm(name community, string community_name, string community_description, map<uint8_t, string> rec_num_of_arb_and_claim_type, uint8_t min_arb_per_case, uint8_t max_arb_per_case, asset min_deposit, uint8_t lead_arb_cut, uint8_t other_arb_cut, uint32_t time_for_arb_to_accept_the_case, uint32_t time_for_respondent_to_acknowledge_the_case, uint32_t time_for_respondent_to_respond_the_case);
     ACTION joincase(name community, name claimant_name, uint64_t case_id, uint8_t nr_of_requested_arbitrators, string case_description, vector<string> claims, vector<asset> fine, vector<asset> relief, vector<uint16_t> suspension, bool request_ban, string claimants_evidence_description, vector<string> claimants_ipfs_cids, asset claimants_deposit, bool claimants_requested_deposit, map<name, string> claimants_socials, map<name, string> respondents_socials, string other_info_about_respondent);
+    ACTION giveverdict(name lead_arbitrator, name community, uint64_t case_id, vector<asset> fine_verdict, vector<asset> relief_verdict, vector<uint16_t> suspension_verdict, string verdict_description, map<name, uint8_t> arbitrator_and_signatures, vector<string> ipfs_cid_verdict);
 
     [[eosio::on_notify("tethertether::transfer")]]
     void assetin(name from, name to, asset quantity, string memo);
