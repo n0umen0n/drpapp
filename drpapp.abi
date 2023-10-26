@@ -72,16 +72,6 @@
             ]
         },
         {
-            "name": "addcase",
-            "base": "",
-            "fields": [
-                {
-                    "name": "community",
-                    "type": "name"
-                }
-            ]
-        },
-        {
             "name": "addcomm",
             "base": "",
             "fields": [
@@ -118,10 +108,6 @@
                     "type": "uint8"
                 },
                 {
-                    "name": "other_arb_cut",
-                    "type": "uint8"
-                },
-                {
                     "name": "time_for_arb_to_accept_the_case",
                     "type": "uint32"
                 },
@@ -136,16 +122,6 @@
             ]
         },
         {
-            "name": "addconfig",
-            "base": "",
-            "fields": [
-                {
-                    "name": "community",
-                    "type": "name"
-                }
-            ]
-        },
-        {
             "name": "arbitrators",
             "base": "",
             "fields": [
@@ -156,7 +132,7 @@
             ]
         },
         {
-            "name": "cases",
+            "name": "casestab",
             "base": "",
             "fields": [
                 {
@@ -354,7 +330,7 @@
             ]
         },
         {
-            "name": "config",
+            "name": "configtab",
             "base": "",
             "fields": [
                 {
@@ -804,18 +780,8 @@
             "ricardian_contract": ""
         },
         {
-            "name": "addcase",
-            "type": "addcase",
-            "ricardian_contract": ""
-        },
-        {
             "name": "addcomm",
             "type": "addcomm",
-            "ricardian_contract": ""
-        },
-        {
-            "name": "addconfig",
-            "type": "addconfig",
             "ricardian_contract": ""
         },
         {
@@ -878,8 +844,8 @@
             "key_types": []
         },
         {
-            "name": "cases",
-            "type": "cases",
+            "name": "casestab",
+            "type": "casestab",
             "index_type": "i64",
             "key_names": [],
             "key_types": []
@@ -892,8 +858,8 @@
             "key_types": []
         },
         {
-            "name": "config",
-            "type": "config",
+            "name": "configtab",
+            "type": "configtab",
             "index_type": "i64",
             "key_names": [],
             "key_types": []

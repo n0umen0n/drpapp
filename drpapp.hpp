@@ -17,10 +17,9 @@ CONTRACT r4ndomnumb3r : public contract
 public:
     using contract::contract;
 
-    ACTION generate();
+    ACTION generate(const uint64_t& salt);
     using generate_action = action_wrapper<"generate"_n, &r4ndomnumb3r::generate>;
 };
-
 
 CONTRACT drpapp : public contract
 {
@@ -32,7 +31,7 @@ public:
     };
     using rng_t = singleton<"rng"_n, rng>;
 
-    TABLE cases 
+    TABLE casestab
     {
         name claimant_name;
         uint64_t case_id;
@@ -80,10 +79,10 @@ public:
         uint64_t primary_key() const { return case_id; }
         uint64_t get_by_number() const { return number; }
     };
-    typedef eosio::multi_index<"cases"_n, cases,
-    indexed_by<"bynumber"_n, const_mem_fun<cases, uint64_t, &cases::get_by_number>>> cases_t;
+    typedef eosio::multi_index<"casestab"_n, casestab,
+    indexed_by<"bynumber"_n, const_mem_fun<casestab, uint64_t, &casestab::get_by_number>>> cases_t;
 
-    TABLE config 
+    TABLE configtab 
     {
         name community;
         string community_name;
@@ -100,7 +99,7 @@ public:
 
         uint64_t primary_key() const { return community.value; }
     };
-    typedef eosio::multi_index<"config"_n, config> config_t;
+    typedef eosio::multi_index<"configtab"_n, configtab> config_t;
 
     TABLE communities 
     {
@@ -118,8 +117,10 @@ public:
 
     drpapp(name self, name code, datastream<const char *> ds);
     //test
+    /*
     ACTION addcase(name community);
     ACTION addconfig(name community);
+    */
     //real
     ACTION delcase(name community,uint64_t case_id);
     ACTION addarbs(name community, vector<name> arbitrator_names);
@@ -128,7 +129,7 @@ public:
     ACTION acceptarbtrn(name arbitrator, uint64_t case_id, name community);
     ACTION acknwdgcase(name respondent, name community, uint64_t case_id);
     ACTION swaparb(uint64_t case_id, name community);
-    ACTION addcomm(name community, string community_name, string community_description, map<uint8_t, string> rec_num_of_arb_and_claim_type, uint8_t min_arb_per_case, uint8_t max_arb_per_case, asset min_deposit, uint8_t lead_arb_cut, uint8_t other_arb_cut, uint32_t time_for_arb_to_accept_the_case, uint32_t time_for_respondent_to_acknowledge_the_case, uint32_t time_for_respondent_to_respond_the_case);
+    ACTION addcomm(name community, string community_name, string community_description, map<uint8_t, string> rec_num_of_arb_and_claim_type, uint8_t min_arb_per_case, uint8_t max_arb_per_case, asset min_deposit, uint8_t lead_arb_cut, uint32_t time_for_arb_to_accept_the_case, uint32_t time_for_respondent_to_acknowledge_the_case, uint32_t time_for_respondent_to_respond_the_case);
     ACTION joincase(name community, name claimant_name, uint64_t case_id, uint8_t nr_of_requested_arbitrators, string case_description, vector<string> claims, vector<asset> fine, vector<asset> relief, vector<uint16_t> suspension, bool request_ban, string claimants_evidence_description, vector<string> claimants_ipfs_cids, asset claimants_deposit, bool claimants_requested_deposit, map<name, string> claimants_socials, map<name, string> respondents_socials, string other_info_about_respondent);
     ACTION giveverdict(name lead_arbitrator, name community, uint64_t case_id, vector<asset> fine_verdict, vector<asset> relief_verdict, vector<uint16_t> suspension_verdict, string verdict_description, map<name, uint8_t> arbitrator_and_signatures, vector<string> ipfs_cid_verdict);
     ACTION acceptaccu(uint64_t case_id, name community, name respondent_account);

@@ -44,12 +44,8 @@ void drpapp::createcase(name community, name claimant_name, uint64_t number, uin
     }
 
 
-    action(
-        permission_level{get_self(), "active"_n},
-        "r4ndomnumb3r"_n,
-        "generate"_n,
-        std::make_tuple()
-    ).send();
+    r4ndomnumb3r::generate_action r4ndomnumb3r_generate("r4ndomnumb3r"_n, {_self, "active"_n});
+    r4ndomnumb3r_generate.send(claimant_name.value);
 
     arbitrators_t arbs_table(get_self(), community.value);
     vector<name> all_arbitrators;
@@ -111,6 +107,9 @@ void drpapp::joincase(name community, name claimant_name, uint64_t case_id, uint
     cases_t cases_table(get_self(), community.value);
     auto old_case_itr = cases_table.find(case_id);
     check(old_case_itr != cases_table.end(), "Old case does not exist!");
+
+    r4ndomnumb3r::generate_action r4ndomnumb3r_generate("r4ndomnumb3r"_n, {_self, "active"_n});
+    r4ndomnumb3r_generate.send(claimant_name.value);
 
     rng_t rndnmbr("r4ndomnumb3r"_n, "r4ndomnumb3r"_n.value);
     checksum256 x = rndnmbr.get().value;
@@ -276,6 +275,9 @@ void drpapp::rejectarbtrn(name arbitrator, uint64_t case_id, name community)
     for (auto itr = arbs_table.begin(); itr != arbs_table.end(); ++itr) {
         all_arbitrators.push_back(itr->arbitrator);
     }
+    
+    r4ndomnumb3r::generate_action r4ndomnumb3r_generate("r4ndomnumb3r"_n, {_self, "active"_n});
+    r4ndomnumb3r_generate.send(arbitrator.value);
 
     // Shuffle to get a random order
     rng_t rndnmbr("r4ndomnumb3r"_n, "r4ndomnumb3r"_n.value);
@@ -324,6 +326,9 @@ void drpapp::swaparb(uint64_t case_id, name community)
         for (auto itr = arbs_table.begin(); itr != arbs_table.end(); ++itr) {
             all_arbitrators.push_back(itr->arbitrator);
         }
+
+        r4ndomnumb3r::generate_action r4ndomnumb3r_generate("r4ndomnumb3r"_n, {_self, "active"_n});
+        r4ndomnumb3r_generate.send(case_itr->claimant_name.value);
 
         // Shuffle to get a random order
         rng_t rndnmbr("r4ndomnumb3r"_n, "r4ndomnumb3r"_n.value);
@@ -502,7 +507,6 @@ void drpapp::addcomm(
     uint8_t max_arb_per_case,
     asset min_deposit,
     uint8_t lead_arb_cut,
-    uint8_t other_arb_cut,
     uint32_t time_for_arb_to_accept_the_case,
     uint32_t time_for_respondent_to_acknowledge_the_case,
     uint32_t time_for_respondent_to_respond_the_case) 
@@ -536,7 +540,6 @@ void drpapp::addcomm(
         row.max_arb_per_case = max_arb_per_case;
         row.min_deposit = min_deposit;
         row.lead_arb_cut = lead_arb_cut;
-        row.other_arb_cut = other_arb_cut;
         row.time_for_arb_to_accept_the_case = time_for_arb_to_accept_the_case;
         row.time_for_respondent_to_acknowledge_the_case = time_for_respondent_to_acknowledge_the_case;
         row.time_for_respondent_to_respond_the_case = time_for_respondent_to_respond_the_case;
@@ -675,7 +678,7 @@ void drpapp::closecase(uint64_t case_id, name community)
 
 
 
-
+/*
 void drpapp::addcase(name community) 
 {
     cases_t cases(_self, community.value);
@@ -725,7 +728,8 @@ void drpapp::addcase(name community)
         row.ipfs_cid_verdict = {"QmVerdictCID"};
     });
 }
-
+*/
+/*
 void drpapp::addconfig(name community) 
 {
 
@@ -747,7 +751,7 @@ void drpapp::addconfig(name community)
     });
 
 }
-
+*/
 void drpapp::delcase(name community, uint64_t case_id) 
 {
     cases_t cases(_self, community.value);
