@@ -222,7 +222,7 @@ void drpapp::delarbs(name community, vector<name> arbitrator_names)
 
 void drpapp::acceptarbtrn(name arbitrator, uint64_t case_id, name community) 
 {
-    require_auth(arbitrator);  // Assuming the arbitrator themselves should do this. Adjust as necessary.
+    require_auth(arbitrator);  // Arbitrator themselves should do this.
 
     cases_t cases_table(get_self(), community.value); // Set the scope to the community name
 
@@ -234,9 +234,25 @@ void drpapp::acceptarbtrn(name arbitrator, uint64_t case_id, name community)
     auto arb_itr = case_itr->arbitrators.find(arbitrator);
     check(arb_itr != case_itr->arbitrators.end(), "Arbitrator is not associated with this case!");
 
-    // Modify the case to set the uint8_t value for this arbitrator to 1
+    bool all_arbitrators_accepted = true;  // Initialize as true. Will set to false if any arbitrator hasn't accepted.
+
+    // Modify the case to set the uint8_t value for this arbitrator to 1 and check if all arbitrators have accepted
     cases_table.modify(case_itr, get_self(), [&](auto& row) {
         row.arbitrators[arbitrator] = 1;
+
+        // Check if all arbitrators have accepted
+        for(const auto& [arb_name, accepted_status] : row.arbitrators) {
+            if(accepted_status == 0) {
+                all_arbitrators_accepted = false;
+                break;
+            }
+        }
+
+        // If all arbitrators accepted, set the stage to 2
+        if(all_arbitrators_accepted) {
+            row.stage = 2;
+            row.all_arbs_accepted_time = current_time_point();
+        }
     });
 }
 
@@ -361,6 +377,7 @@ void drpapp::acknwdgcase(name respondent, name community, uint64_t case_id)
     cases_table.modify(case_itr, get_self(), [&](auto& row) {
         row.case_acknowledged_by_respondent = true;
         row.case_acknowledged_by_respondent_time = current_time_point();
+        row.stage = 3;
     });
 }
 
@@ -393,6 +410,7 @@ void drpapp::giveverdict(
         row.suspension_verdict = suspension_verdict;
         row.verdict_description = verdict_description;
         row.ipfs_cid_verdict = ipfs_cid_verdict;
+        row.stage = 5;
 
         // Reset all arbitrator signatures to 0, indicating they have not signed
         for(const auto& [arb_name, _]: case_itr->arbitrators) 
@@ -406,7 +424,8 @@ void drpapp::giveverdict(
 }
 
 
-void drpapp::signverdict(name community, name arbitrator, uint64_t case_id) {
+void drpapp::signverdict(name community, name arbitrator, uint64_t case_id) 
+{
     require_auth(arbitrator);
 
     cases_t cases_table(_self, community.value);
@@ -432,7 +451,8 @@ void drpapp::signverdict(name community, name arbitrator, uint64_t case_id) {
         }
     }
 
-    if (all_arbitrators_signed) {
+    if (all_arbitrators_signed) 
+    {
 
         int64_t total_claimant_amount = case_itr->claimants_deposit_paid.amount;
         int64_t total_respondent_amount = case_itr->respondent_deposit_paid.amount;
@@ -453,17 +473,18 @@ void drpapp::signverdict(name community, name arbitrator, uint64_t case_id) {
         action(permission_level{_self, "active"_n}, "tethertether"_n, "transfer"_n, make_tuple(_self, case_itr->arbitrators.begin()->first, lead_arb_amount, string("Lead Arbitrator Payout"))).send();
         
         // Remaining arbitrators
-        for (auto it = ++(case_itr->arbitrators.begin()); it != case_itr->arbitrators.end(); ++it) {
+        for (auto it = ++(case_itr->arbitrators.begin()); it != case_itr->arbitrators.end(); ++it) 
+        {
             action(permission_level{_self, "active"_n}, "tethertether"_n, "transfer"_n, make_tuple(_self, it->first, other_arb_amount, string("Arbitrator Payout"))).send();
         }
 
         // Update the case stage
         cases_table.modify(case_itr, _self, [&](auto& row) {
-            row.stage = 5;
+            row.stage = 6;
         });
 
 
-        }
+    }
 }
 
 
@@ -481,9 +502,20 @@ void drpapp::addcomm(
     uint32_t time_for_respondent_to_acknowledge_the_case,
     uint32_t time_for_respondent_to_respond_the_case) 
 {
+    // Initialize the communities table with the scope of _self (contract's account name)
+    communities_t communities_table(get_self(), get_self().value);
+
+    // Check if community already exists in the communities table
+    auto existing_community = communities_table.find(community.value);
+    check(existing_community == communities_table.end(), "Community already exists in communities table!");
+
+    // Add community to the communities table
+    communities_table.emplace(get_self(), [&](auto& row) {
+        row.community = community;
+    });
 
     // Initialize the config table with the scope of community name
-    config_t config_table(get_self(), _self.value);
+    config_t config_table(get_self(), get_self().value);
 
     // Check if the community configuration already exists
     auto existing_config = config_table.find(community.value);
@@ -548,6 +580,96 @@ void drpapp::assetin(
         }
     }
 }
+
+void drpapp::acceptaccu(uint64_t case_id, name community, name respondent_account) 
+{
+    require_auth(respondent_account); // Ensure that only the respondent can trigger this action
+
+    cases_t cases_table(get_self(), community.value); // Initialize the cases table with the scope of community
+
+    auto case_itr = cases_table.find(case_id); // Find the case based on case_id
+    check(case_itr != cases_table.end(), "Case does not exist!");
+
+    // Ensure that the respondent_account matches the respondents_account in the case
+    check(case_itr->respondents_account == respondent_account, "Only the case's respondent can trigger this action!");
+
+    // Modify the case to update the relevant fields
+    cases_table.modify(case_itr, get_self(), [&](auto& row) {
+        row.accusations_accepted_by_respondent = true;
+        row.stage = 6;
+    });
+}
+
+void drpapp::respondcase(
+    uint64_t case_id,
+    name community,
+    string respondents_response,
+    vector<string> respondents_ipfs_cids,
+    string respondents_evidents_description,
+    vector<asset> fine_counter,
+    vector<asset> relief_counter,
+    vector<uint16_t> suspension_counter,
+    asset respondent_deposit,
+    bool respondent_requested_deposit) 
+{
+
+    cases_t cases_table(get_self(), community.value); // Initialize the cases table with the scope of community
+
+    auto case_itr = cases_table.find(case_id); // Find the case based on case_id
+    check(case_itr != cases_table.end(), "Case does not exist!");
+
+    require_auth(case_itr->respondents_account); // Ensure that only the respondent of the case can trigger this action
+
+    // Modify the case to update with the provided input data
+    cases_table.modify(case_itr, get_self(), [&](auto& row) {
+        row.respondents_response = respondents_response;
+        row.respondents_ipfs_cids = respondents_ipfs_cids;
+        row.respondents_evidents_description = respondents_evidents_description;
+        row.fine_counter = fine_counter;
+        row.relief_counter = relief_counter;
+        row.suspension_counter = suspension_counter;
+        row.respondent_deposit = respondent_deposit;
+        row.respondent_requested_deposit = respondent_requested_deposit;
+        row.stage = 4;
+    });
+}
+
+
+void drpapp::closecase(uint64_t case_id, name community) 
+{
+    cases_t cases_table(get_self(), community.value); // Initialize the cases table with the scope of community
+    auto case_itr = cases_table.find(case_id); // Find the case based on case_id
+    check(case_itr != cases_table.end(), "Case does not exist!");
+
+    // Ensure the map is not empty
+    check(!case_itr->arbitrators.empty(), "No arbitrators found for this case!");
+    
+    // Get the lead arbitrator
+    auto lead_arbitrator = case_itr->arbitrators.begin()->first;
+
+    // Check the action is called by the lead arbitrator
+    require_auth(lead_arbitrator);
+
+    config_t config_table(get_self(), community.value); // Initialize the config table with the scope of community
+    auto config_itr = config_table.find(community.value); // Find the config based on community name
+    check(config_itr != config_table.end(), "Configuration for this community does not exist!");
+
+    // Check if the required time has passed since all_arbs_accepted_time using the provided logic
+    if (case_itr->all_arbs_accepted_time + config_itr->time_for_respondent_to_acknowledge_the_case < current_time_point()) 
+    {
+        // Logic for closing the case. You can further modify the case attributes or other logic here as required
+        cases_table.modify(case_itr, get_self(), [&](auto& row) {
+            row.stage = 6;  // Assuming 6 is the "closed" stage. Modify as required
+        });
+    } 
+    else 
+    {
+        check(false, "Cannot close the case yet. Not enough time has passed since all arbitrators accepted.");
+    }
+}
+
+
+
 
 void drpapp::addcase(name community) 
 {
