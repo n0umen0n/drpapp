@@ -72,7 +72,7 @@ void drpapp::createcase(name community, name claimant_name, uint64_t number, uin
     cases_t cases_table(get_self(), community.value);
     cases_table.emplace(_self, [&](auto& row) {
         row.case_id = cases_table.available_primary_key();
-        row.case_started = current_time_point();
+        row.case_start_time = current_time_point();
         row.claimant_name = claimant_name;
         row.number = number;
         row.stage = 1;
@@ -158,7 +158,7 @@ void drpapp::joincase(name community, name claimant_name, uint64_t case_id, uint
 
     cases_table.emplace(_self, [&](auto& row) {
         row.case_id = cases_table.available_primary_key();
-        row.case_started = current_time_point();
+        row.case_start_time = current_time_point();
         row.claimant_name = claimant_name;
         row.number = old_case_itr->number;
         row.stage = 1;
@@ -454,6 +454,11 @@ void drpapp::signverdict(name community, name arbitrator, uint64_t case_id)
     if (all_arbitrators_signed) 
     {
 
+        config_t config_table(_self, community.value);
+        auto config_itr = config_table.find(community.value);
+        check(config_itr != config_table.end(), "Configuration for the community not found.");
+
+        int total_arbitrators = case_itr->arbitrator_and_signatures.size();
         int64_t total_claimant_amount = case_itr->claimants_deposit_paid.amount;
         int64_t total_respondent_amount = case_itr->respondent_deposit_paid.amount;
 

@@ -4,6 +4,74 @@
     "types": [],
     "structs": [
         {
+            "name": "acceptaccu",
+            "base": "",
+            "fields": [
+                {
+                    "name": "case_id",
+                    "type": "uint64"
+                },
+                {
+                    "name": "community",
+                    "type": "name"
+                },
+                {
+                    "name": "respondent_account",
+                    "type": "name"
+                }
+            ]
+        },
+        {
+            "name": "acceptarbtrn",
+            "base": "",
+            "fields": [
+                {
+                    "name": "arbitrator",
+                    "type": "name"
+                },
+                {
+                    "name": "case_id",
+                    "type": "uint64"
+                },
+                {
+                    "name": "community",
+                    "type": "name"
+                }
+            ]
+        },
+        {
+            "name": "acknwdgcase",
+            "base": "",
+            "fields": [
+                {
+                    "name": "respondent",
+                    "type": "name"
+                },
+                {
+                    "name": "community",
+                    "type": "name"
+                },
+                {
+                    "name": "case_id",
+                    "type": "uint64"
+                }
+            ]
+        },
+        {
+            "name": "addarbs",
+            "base": "",
+            "fields": [
+                {
+                    "name": "community",
+                    "type": "name"
+                },
+                {
+                    "name": "arbitrator_names",
+                    "type": "name[]"
+                }
+            ]
+        },
+        {
             "name": "addcase",
             "base": "",
             "fields": [
@@ -14,11 +82,75 @@
             ]
         },
         {
+            "name": "addcomm",
+            "base": "",
+            "fields": [
+                {
+                    "name": "community",
+                    "type": "name"
+                },
+                {
+                    "name": "community_name",
+                    "type": "string"
+                },
+                {
+                    "name": "community_description",
+                    "type": "string"
+                },
+                {
+                    "name": "rec_num_of_arb_and_claim_type",
+                    "type": "pair_uint8_string[]"
+                },
+                {
+                    "name": "min_arb_per_case",
+                    "type": "uint8"
+                },
+                {
+                    "name": "max_arb_per_case",
+                    "type": "uint8"
+                },
+                {
+                    "name": "min_deposit",
+                    "type": "asset"
+                },
+                {
+                    "name": "lead_arb_cut",
+                    "type": "uint8"
+                },
+                {
+                    "name": "other_arb_cut",
+                    "type": "uint8"
+                },
+                {
+                    "name": "time_for_arb_to_accept_the_case",
+                    "type": "uint32"
+                },
+                {
+                    "name": "time_for_respondent_to_acknowledge_the_case",
+                    "type": "uint32"
+                },
+                {
+                    "name": "time_for_respondent_to_respond_the_case",
+                    "type": "uint32"
+                }
+            ]
+        },
+        {
             "name": "addconfig",
             "base": "",
             "fields": [
                 {
                     "name": "community",
+                    "type": "name"
+                }
+            ]
+        },
+        {
+            "name": "arbitrators",
+            "base": "",
+            "fields": [
+                {
+                    "name": "arbitrator",
                     "type": "name"
                 }
             ]
@@ -34,6 +166,14 @@
                 {
                     "name": "case_id",
                     "type": "uint64"
+                },
+                {
+                    "name": "case_start_time",
+                    "type": "time_point_sec"
+                },
+                {
+                    "name": "all_arbs_accepted_time",
+                    "type": "time_point_sec"
                 },
                 {
                     "name": "number",
@@ -88,6 +228,10 @@
                     "type": "asset"
                 },
                 {
+                    "name": "claimants_deposit_paid",
+                    "type": "asset"
+                },
+                {
                     "name": "claimants_requested_deposit",
                     "type": "bool"
                 },
@@ -109,6 +253,14 @@
                 },
                 {
                     "name": "accusations_accepted_by_respondent",
+                    "type": "bool"
+                },
+                {
+                    "name": "case_acknowledged_by_respondent_time",
+                    "type": "time_point_sec"
+                },
+                {
+                    "name": "case_acknowledged_by_respondent",
                     "type": "bool"
                 },
                 {
@@ -137,6 +289,10 @@
                 },
                 {
                     "name": "respondent_deposit",
+                    "type": "asset"
+                },
+                {
+                    "name": "respondent_deposit_paid",
                     "type": "asset"
                 },
                 {
@@ -170,6 +326,20 @@
                 {
                     "name": "ipfs_cid_verdict",
                     "type": "string[]"
+                }
+            ]
+        },
+        {
+            "name": "closecase",
+            "base": "",
+            "fields": [
+                {
+                    "name": "case_id",
+                    "type": "uint64"
+                },
+                {
+                    "name": "community",
+                    "type": "name"
                 }
             ]
         },
@@ -238,6 +408,102 @@
             ]
         },
         {
+            "name": "createcase",
+            "base": "",
+            "fields": [
+                {
+                    "name": "community",
+                    "type": "name"
+                },
+                {
+                    "name": "claimant_name",
+                    "type": "name"
+                },
+                {
+                    "name": "number",
+                    "type": "uint64"
+                },
+                {
+                    "name": "nr_of_requested_arbitrators",
+                    "type": "uint8"
+                },
+                {
+                    "name": "case_description",
+                    "type": "string"
+                },
+                {
+                    "name": "arbitrators",
+                    "type": "pair_name_uint8[]"
+                },
+                {
+                    "name": "claims",
+                    "type": "string[]"
+                },
+                {
+                    "name": "fine",
+                    "type": "asset[]"
+                },
+                {
+                    "name": "relief",
+                    "type": "asset[]"
+                },
+                {
+                    "name": "suspension",
+                    "type": "uint16[]"
+                },
+                {
+                    "name": "request_ban",
+                    "type": "bool"
+                },
+                {
+                    "name": "claimants_evidence_description",
+                    "type": "string"
+                },
+                {
+                    "name": "claimants_ipfs_cids",
+                    "type": "string[]"
+                },
+                {
+                    "name": "claimants_deposit",
+                    "type": "asset"
+                },
+                {
+                    "name": "claimants_requested_deposit",
+                    "type": "bool"
+                },
+                {
+                    "name": "claimants_socials",
+                    "type": "pair_name_string[]"
+                },
+                {
+                    "name": "respondents_socials",
+                    "type": "pair_name_string[]"
+                },
+                {
+                    "name": "respondents_account",
+                    "type": "name"
+                },
+                {
+                    "name": "other_info_about_respondent",
+                    "type": "string"
+                }
+            ]
+        },
+        {
+            "name": "delarbs",
+            "base": "",
+            "fields": [
+                {
+                    "name": "community",
+                    "type": "name"
+                },
+                {
+                    "name": "arbitrator_names",
+                    "type": "name[]"
+                }
+            ]
+        },
+        {
             "name": "delcase",
             "base": "",
             "fields": [
@@ -248,6 +514,122 @@
                 {
                     "name": "case_id",
                     "type": "uint64"
+                }
+            ]
+        },
+        {
+            "name": "giveverdict",
+            "base": "",
+            "fields": [
+                {
+                    "name": "lead_arbitrator",
+                    "type": "name"
+                },
+                {
+                    "name": "community",
+                    "type": "name"
+                },
+                {
+                    "name": "case_id",
+                    "type": "uint64"
+                },
+                {
+                    "name": "fine_verdict",
+                    "type": "asset[]"
+                },
+                {
+                    "name": "relief_verdict",
+                    "type": "asset[]"
+                },
+                {
+                    "name": "suspension_verdict",
+                    "type": "uint16[]"
+                },
+                {
+                    "name": "verdict_description",
+                    "type": "string"
+                },
+                {
+                    "name": "arbitrator_and_signatures",
+                    "type": "pair_name_uint8[]"
+                },
+                {
+                    "name": "ipfs_cid_verdict",
+                    "type": "string[]"
+                }
+            ]
+        },
+        {
+            "name": "joincase",
+            "base": "",
+            "fields": [
+                {
+                    "name": "community",
+                    "type": "name"
+                },
+                {
+                    "name": "claimant_name",
+                    "type": "name"
+                },
+                {
+                    "name": "case_id",
+                    "type": "uint64"
+                },
+                {
+                    "name": "nr_of_requested_arbitrators",
+                    "type": "uint8"
+                },
+                {
+                    "name": "case_description",
+                    "type": "string"
+                },
+                {
+                    "name": "claims",
+                    "type": "string[]"
+                },
+                {
+                    "name": "fine",
+                    "type": "asset[]"
+                },
+                {
+                    "name": "relief",
+                    "type": "asset[]"
+                },
+                {
+                    "name": "suspension",
+                    "type": "uint16[]"
+                },
+                {
+                    "name": "request_ban",
+                    "type": "bool"
+                },
+                {
+                    "name": "claimants_evidence_description",
+                    "type": "string"
+                },
+                {
+                    "name": "claimants_ipfs_cids",
+                    "type": "string[]"
+                },
+                {
+                    "name": "claimants_deposit",
+                    "type": "asset"
+                },
+                {
+                    "name": "claimants_requested_deposit",
+                    "type": "bool"
+                },
+                {
+                    "name": "claimants_socials",
+                    "type": "pair_name_string[]"
+                },
+                {
+                    "name": "respondents_socials",
+                    "type": "pair_name_string[]"
+                },
+                {
+                    "name": "other_info_about_respondent",
+                    "type": "string"
                 }
             ]
         },
@@ -292,12 +674,143 @@
                     "type": "string"
                 }
             ]
+        },
+        {
+            "name": "rejectarbtrn",
+            "base": "",
+            "fields": [
+                {
+                    "name": "arbitrator",
+                    "type": "name"
+                },
+                {
+                    "name": "case_id",
+                    "type": "uint64"
+                },
+                {
+                    "name": "community",
+                    "type": "name"
+                }
+            ]
+        },
+        {
+            "name": "respondcase",
+            "base": "",
+            "fields": [
+                {
+                    "name": "case_id",
+                    "type": "uint64"
+                },
+                {
+                    "name": "community",
+                    "type": "name"
+                },
+                {
+                    "name": "respondents_response",
+                    "type": "string"
+                },
+                {
+                    "name": "respondents_ipfs_cids",
+                    "type": "string[]"
+                },
+                {
+                    "name": "respondents_evidents_description",
+                    "type": "string"
+                },
+                {
+                    "name": "fine_counter",
+                    "type": "asset[]"
+                },
+                {
+                    "name": "relief_counter",
+                    "type": "asset[]"
+                },
+                {
+                    "name": "suspension_counter",
+                    "type": "uint16[]"
+                },
+                {
+                    "name": "respondent_deposit",
+                    "type": "asset"
+                },
+                {
+                    "name": "respondent_requested_deposit",
+                    "type": "bool"
+                }
+            ]
+        },
+        {
+            "name": "rng",
+            "base": "",
+            "fields": [
+                {
+                    "name": "value",
+                    "type": "checksum256"
+                }
+            ]
+        },
+        {
+            "name": "signverdict",
+            "base": "",
+            "fields": [
+                {
+                    "name": "community",
+                    "type": "name"
+                },
+                {
+                    "name": "arbitrator",
+                    "type": "name"
+                },
+                {
+                    "name": "case_id",
+                    "type": "uint64"
+                }
+            ]
+        },
+        {
+            "name": "swaparb",
+            "base": "",
+            "fields": [
+                {
+                    "name": "case_id",
+                    "type": "uint64"
+                },
+                {
+                    "name": "community",
+                    "type": "name"
+                }
+            ]
         }
     ],
     "actions": [
         {
+            "name": "acceptaccu",
+            "type": "acceptaccu",
+            "ricardian_contract": ""
+        },
+        {
+            "name": "acceptarbtrn",
+            "type": "acceptarbtrn",
+            "ricardian_contract": ""
+        },
+        {
+            "name": "acknwdgcase",
+            "type": "acknwdgcase",
+            "ricardian_contract": ""
+        },
+        {
+            "name": "addarbs",
+            "type": "addarbs",
+            "ricardian_contract": ""
+        },
+        {
             "name": "addcase",
             "type": "addcase",
+            "ricardian_contract": ""
+        },
+        {
+            "name": "addcomm",
+            "type": "addcomm",
             "ricardian_contract": ""
         },
         {
@@ -306,12 +819,64 @@
             "ricardian_contract": ""
         },
         {
+            "name": "closecase",
+            "type": "closecase",
+            "ricardian_contract": ""
+        },
+        {
+            "name": "createcase",
+            "type": "createcase",
+            "ricardian_contract": ""
+        },
+        {
+            "name": "delarbs",
+            "type": "delarbs",
+            "ricardian_contract": ""
+        },
+        {
             "name": "delcase",
             "type": "delcase",
+            "ricardian_contract": ""
+        },
+        {
+            "name": "giveverdict",
+            "type": "giveverdict",
+            "ricardian_contract": ""
+        },
+        {
+            "name": "joincase",
+            "type": "joincase",
+            "ricardian_contract": ""
+        },
+        {
+            "name": "rejectarbtrn",
+            "type": "rejectarbtrn",
+            "ricardian_contract": ""
+        },
+        {
+            "name": "respondcase",
+            "type": "respondcase",
+            "ricardian_contract": ""
+        },
+        {
+            "name": "signverdict",
+            "type": "signverdict",
+            "ricardian_contract": ""
+        },
+        {
+            "name": "swaparb",
+            "type": "swaparb",
             "ricardian_contract": ""
         }
     ],
     "tables": [
+        {
+            "name": "arbitrators",
+            "type": "arbitrators",
+            "index_type": "i64",
+            "key_names": [],
+            "key_types": []
+        },
         {
             "name": "cases",
             "type": "cases",
@@ -329,6 +894,13 @@
         {
             "name": "config",
             "type": "config",
+            "index_type": "i64",
+            "key_names": [],
+            "key_types": []
+        },
+        {
+            "name": "rng",
+            "type": "rng",
             "index_type": "i64",
             "key_names": [],
             "key_types": []

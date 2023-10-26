@@ -51,7 +51,7 @@ public:
         string claimants_evidence_description;
         vector<string> claimants_ipfs_cids;
         asset claimants_deposit;
-        asset claimants_deposit_paid
+        asset claimants_deposit_paid;
         bool claimants_requested_deposit;
         map<name, string> claimants_socials;
         map<name, string> respondents_socials;
@@ -134,6 +134,10 @@ public:
     ACTION acceptaccu(uint64_t case_id, name community, name respondent_account);
     ACTION respondcase(uint64_t case_id, name community, string respondents_response, vector<string> respondents_ipfs_cids, string respondents_evidents_description, vector<asset> fine_counter, vector<asset> relief_counter, vector<uint16_t> suspension_counter, asset respondent_deposit, bool respondent_requested_deposit); 
     ACTION closecase(uint64_t case_id, name community);
+    ACTION rejectarbtrn(name arbitrator, uint64_t case_id, name community);
+    ACTION signverdict(name community, name arbitrator, uint64_t case_id);
+
+
 
 
 
