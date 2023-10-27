@@ -9,7 +9,7 @@ drpapp::drpapp(
 
 
 void drpapp::createcase(name community, name claimant_name, uint64_t number, uint8_t nr_of_requested_arbitrators,
-    string case_description, map<name, uint8_t> arbitrators, vector<string> claims, vector<asset> fine, vector<asset> relief, 
+    string case_description, vector<string> claims, vector<asset> fine, vector<asset> relief, 
     vector<uint16_t> suspension, bool request_ban, string claimants_evidence_description, vector<string> claimants_ipfs_cids,
     asset claimants_deposit, bool claimants_requested_deposit, map<name, string> claimants_socials, map<name, string> respondents_socials,
     name respondents_account, string other_info_about_respondent)
@@ -47,7 +47,7 @@ void drpapp::createcase(name community, name claimant_name, uint64_t number, uin
     r4ndomnumb3r::generate_action r4ndomnumb3r_generate("r4ndomnumb3r"_n, {_self, "active"_n});
     r4ndomnumb3r_generate.send(claimant_name.value);
 
-    arbitrators_t arbs_table(get_self(), community.value);
+    arbitrators_t arbs_table(get_self(), _self.value);
     vector<name> all_arbitrators;
 
     for (auto arb_itr = arbs_table.begin(); arb_itr != arbs_table.end(); ++arb_itr) {
@@ -64,6 +64,8 @@ void drpapp::createcase(name community, name claimant_name, uint64_t number, uin
     {
       selected_arbitrators[all_arbitrators[i]] = 0;
     } 
+
+    asset zero_usdt = asset(0, symbol("USDT", 4));
 
     cases_t cases_table(get_self(), community.value);
     cases_table.emplace(_self, [&](auto& row) {
@@ -88,6 +90,8 @@ void drpapp::createcase(name community, name claimant_name, uint64_t number, uin
         row.respondents_socials = respondents_socials;
         row.respondents_account = respondents_account;
         row.other_info_about_respondent = other_info_about_respondent;
+        row.claimants_deposit_paid = zero_usdt;
+        row.respondent_deposit_paid = zero_usdt;
     });
 }
 
@@ -119,7 +123,7 @@ void drpapp::joincase(name community, name claimant_name, uint64_t case_id, uint
 
     if(nr_of_requested_arbitrators > old_case_itr->nr_of_requested_arbitrators) 
     {
-        arbitrators_t arbs_table(get_self(), community.value);
+        arbitrators_t arbs_table(get_self(), _self.value);
         vector<name> all_arbitrators;
 
         for (auto arb_itr = arbs_table.begin(); arb_itr != arbs_table.end(); ++arb_itr) 
@@ -155,6 +159,8 @@ void drpapp::joincase(name community, name claimant_name, uint64_t case_id, uint
         }
     }
 
+    asset zero_usdt = asset(0, symbol("USDT", 4));
+
     cases_table.emplace(_self, [&](auto& row) {
         row.case_id = cases_table.available_primary_key();
         row.case_start_time = current_time_point();
@@ -173,6 +179,8 @@ void drpapp::joincase(name community, name claimant_name, uint64_t case_id, uint
         row.claimants_ipfs_cids = claimants_ipfs_cids;
         row.claimants_deposit = claimants_deposit;
         row.claimants_requested_deposit = claimants_requested_deposit;
+        row.claimants_deposit_paid = zero_usdt;
+        row.respondent_deposit_paid = zero_usdt;
         row.claimants_socials = claimants_socials;
         row.respondents_socials = respondents_socials;
         row.respondents_account = old_case_itr->respondents_account;
@@ -189,7 +197,7 @@ void drpapp::addarbs(name community, vector<name> arbitrator_names)
     // Check if the community exists in the config table
     config_t config_table(get_self(), get_self().value);
     auto config_itr = config_table.find(community.value);
-    check(config_itr != config_table.end(), "Community does not exist in the config table!");
+    //check(config_itr != config_table.end(), "Community does not exist in the config table!");
 
     arbitrators_t arbs(get_self(), community.value);  // Setting the scope to the community name
 
@@ -394,7 +402,6 @@ void drpapp::giveverdict(
     vector<asset> relief_verdict,
     vector<uint16_t> suspension_verdict,
     string verdict_description,
-    map<name, uint8_t> arbitrator_and_signatures,
     vector<string> ipfs_cid_verdict
 ) 
 {
@@ -502,7 +509,7 @@ void drpapp::addcomm(
     name community,
     string community_name,
     string community_description,
-    map<uint8_t, string> rec_num_of_arb_and_claim_type,
+    map<string, uint8_t> rec_num_of_arb_and_claim_type,
     uint8_t min_arb_per_case,
     uint8_t max_arb_per_case,
     asset min_deposit,
@@ -760,6 +767,19 @@ void drpapp::delcase(name community, uint64_t case_id)
     eosio::check(itr != cases.end(), "Case with specified case_id not found.");
 
     cases.erase(itr);
+}
+
+void drpapp::clearcomm() 
+{
+    require_auth(_self);  // Ensure only the contract can clear the table
+
+    communities_t communities_table(_self, _self.value);
+    
+    auto itr = communities_table.begin();
+    while(itr != communities_table.end()) 
+    {
+        itr = communities_table.erase(itr);
+    }
 }
 
 

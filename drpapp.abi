@@ -89,7 +89,7 @@
                 },
                 {
                     "name": "rec_num_of_arb_and_claim_type",
-                    "type": "pair_uint8_string[]"
+                    "type": "pair_string_uint8[]"
                 },
                 {
                     "name": "min_arb_per_case",
@@ -347,7 +347,7 @@
                 },
                 {
                     "name": "rec_num_of_arb_and_claim_type",
-                    "type": "pair_uint8_string[]"
+                    "type": "pair_string_uint8[]"
                 },
                 {
                     "name": "min_arb_per_case",
@@ -363,10 +363,6 @@
                 },
                 {
                     "name": "lead_arb_cut",
-                    "type": "uint8"
-                },
-                {
-                    "name": "other_arb_cut",
                     "type": "uint8"
                 },
                 {
@@ -406,10 +402,6 @@
                 {
                     "name": "case_description",
                     "type": "string"
-                },
-                {
-                    "name": "arbitrators",
-                    "type": "pair_name_uint8[]"
                 },
                 {
                     "name": "claims",
@@ -526,10 +518,6 @@
                     "type": "string"
                 },
                 {
-                    "name": "arbitrator_and_signatures",
-                    "type": "pair_name_uint8[]"
-                },
-                {
                     "name": "ipfs_cid_verdict",
                     "type": "string[]"
                 }
@@ -638,16 +626,16 @@
             ]
         },
         {
-            "name": "pair_uint8_string",
+            "name": "pair_string_uint8",
             "base": "",
             "fields": [
                 {
                     "name": "key",
-                    "type": "uint8"
+                    "type": "string"
                 },
                 {
                     "name": "value",
-                    "type": "string"
+                    "type": "uint8"
                 }
             ]
         },

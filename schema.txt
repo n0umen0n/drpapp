@@ -1,8 +1,17 @@
+addcommu
+
+rec_num_of_arb_and_claim_type
+[  {"key": "Violation of my personal space", "value": "3"},  {"key": "Violation of contribution agreement", "value": "4"}]
+[  {"key": "Telegram", "value": "cxzvnk"},  {"key": "Violation of contribution agreement", "value": "4"}]
+
+
 dune -- cdt-cpp -abigen /host/Users/vlad/Desktop/drpapp/drpapp.cpp -o /host/Users/vlad/Desktop/drpapp/drpapp.wasm
 
  cleos -u https://eos.greymass.com set contract drpappdrpapp /Users/vlad/Desktop/drpapp drpapp.wasm drpapp.abi 
 
  cleos -u https://eos.greymass.com push action eosio powerup '{"payer": "vladislav.x", "receiver":"drpappdrpapp", "days":1, "net_frac":2000000, "cpu_frac":200000000, "max_payment":"0.1000 EOS"}' -p vladislav.x 
+ cleos -u https://eos.greymass.com push action eosio powerup '{"payer": "drpappdrpapp", "receiver":"drpappdrpapp", "days":1, "net_frac":2000000, "cpu_frac":200000000, "max_payment":"0.1000 EOS"}' -p drpappdrpapp
+ cleos -u https://eos.greymass.com push action eosio powerup '{"payer": "drpappdrpapp", "receiver":"vladislav.x", "days":1, "net_frac":2000000, "cpu_frac":200000000, "max_payment":"0.1000 EOS"}' -p drpappdrpapp
 
 cleos -u https://eos.greymass.com push action eosio buyram '["drpappdrpapp", "drpappdrpapp", "5.0000 EOS"]' -p drpappdrpapp@active
 

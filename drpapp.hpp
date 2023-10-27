@@ -87,12 +87,11 @@ public:
         name community;
         string community_name;
         string community_description;
-        map<uint8_t, string> rec_num_of_arb_and_claim_type;
+        map<string, uint8_t> rec_num_of_arb_and_claim_type;
         uint8_t min_arb_per_case;
         uint8_t max_arb_per_case;
         asset min_deposit;
         uint8_t lead_arb_cut;
-        uint8_t other_arb_cut;
         uint32_t time_for_arb_to_accept_the_case;
         uint32_t time_for_respondent_to_acknowledge_the_case;
         uint32_t time_for_respondent_to_respond_the_case;
@@ -125,18 +124,19 @@ public:
     ACTION delcase(name community,uint64_t case_id);
     ACTION addarbs(name community, vector<name> arbitrator_names);
     ACTION delarbs(name community, vector<name> arbitrator_names);
-    ACTION createcase(name community, name claimant_name, uint64_t number, uint8_t nr_of_requested_arbitrators, string case_description, map<name, uint8_t> arbitrators, vector<string> claims, vector<asset> fine, vector<asset> relief, vector<uint16_t> suspension, bool request_ban, string claimants_evidence_description, vector<string> claimants_ipfs_cids, asset claimants_deposit, bool claimants_requested_deposit, map<name, string> claimants_socials, map<name, string> respondents_socials, name respondents_account, string other_info_about_respondent);
+    ACTION createcase(name community, name claimant_name, uint64_t number, uint8_t nr_of_requested_arbitrators, string case_description, vector<string> claims, vector<asset> fine, vector<asset> relief, vector<uint16_t> suspension, bool request_ban, string claimants_evidence_description, vector<string> claimants_ipfs_cids, asset claimants_deposit, bool claimants_requested_deposit, map<name, string> claimants_socials, map<name, string> respondents_socials, name respondents_account, string other_info_about_respondent);
     ACTION acceptarbtrn(name arbitrator, uint64_t case_id, name community);
     ACTION acknwdgcase(name respondent, name community, uint64_t case_id);
     ACTION swaparb(uint64_t case_id, name community);
-    ACTION addcomm(name community, string community_name, string community_description, map<uint8_t, string> rec_num_of_arb_and_claim_type, uint8_t min_arb_per_case, uint8_t max_arb_per_case, asset min_deposit, uint8_t lead_arb_cut, uint32_t time_for_arb_to_accept_the_case, uint32_t time_for_respondent_to_acknowledge_the_case, uint32_t time_for_respondent_to_respond_the_case);
+    ACTION addcomm(name community, string community_name, string community_description, map<string, uint8_t> rec_num_of_arb_and_claim_type, uint8_t min_arb_per_case, uint8_t max_arb_per_case, asset min_deposit, uint8_t lead_arb_cut, uint32_t time_for_arb_to_accept_the_case, uint32_t time_for_respondent_to_acknowledge_the_case, uint32_t time_for_respondent_to_respond_the_case);
     ACTION joincase(name community, name claimant_name, uint64_t case_id, uint8_t nr_of_requested_arbitrators, string case_description, vector<string> claims, vector<asset> fine, vector<asset> relief, vector<uint16_t> suspension, bool request_ban, string claimants_evidence_description, vector<string> claimants_ipfs_cids, asset claimants_deposit, bool claimants_requested_deposit, map<name, string> claimants_socials, map<name, string> respondents_socials, string other_info_about_respondent);
-    ACTION giveverdict(name lead_arbitrator, name community, uint64_t case_id, vector<asset> fine_verdict, vector<asset> relief_verdict, vector<uint16_t> suspension_verdict, string verdict_description, map<name, uint8_t> arbitrator_and_signatures, vector<string> ipfs_cid_verdict);
+    ACTION giveverdict(name lead_arbitrator, name community, uint64_t case_id, vector<asset> fine_verdict, vector<asset> relief_verdict, vector<uint16_t> suspension_verdict, string verdict_description, vector<string> ipfs_cid_verdict);
     ACTION acceptaccu(uint64_t case_id, name community, name respondent_account);
     ACTION respondcase(uint64_t case_id, name community, string respondents_response, vector<string> respondents_ipfs_cids, string respondents_evidents_description, vector<asset> fine_counter, vector<asset> relief_counter, vector<uint16_t> suspension_counter, asset respondent_deposit, bool respondent_requested_deposit); 
     ACTION closecase(uint64_t case_id, name community);
     ACTION rejectarbtrn(name arbitrator, uint64_t case_id, name community);
     ACTION signverdict(name community, name arbitrator, uint64_t case_id);
+    ACTION clearcomm();
 
 
 
