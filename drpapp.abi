@@ -108,6 +108,10 @@
                     "type": "uint8"
                 },
                 {
+                    "name": "drpapp_cut",
+                    "type": "uint8"
+                },
+                {
                     "name": "time_for_arb_to_accept_the_case",
                     "type": "uint32"
                 },
@@ -122,6 +126,32 @@
             ]
         },
         {
+            "name": "addevidence",
+            "base": "",
+            "fields": [
+                {
+                    "name": "community",
+                    "type": "name"
+                },
+                {
+                    "name": "case_id",
+                    "type": "uint64"
+                },
+                {
+                    "name": "claimant",
+                    "type": "name"
+                },
+                {
+                    "name": "claimants_evidence_desc",
+                    "type": "string"
+                },
+                {
+                    "name": "claimants_ipfs_cids",
+                    "type": "string[]"
+                }
+            ]
+        },
+        {
             "name": "arbitrators",
             "base": "",
             "fields": [
@@ -132,7 +162,7 @@
             ]
         },
         {
-            "name": "casestab",
+            "name": "casestb",
             "base": "",
             "fields": [
                 {
@@ -200,18 +230,6 @@
                     "type": "string[]"
                 },
                 {
-                    "name": "claimants_deposit",
-                    "type": "asset"
-                },
-                {
-                    "name": "claimants_deposit_paid",
-                    "type": "asset"
-                },
-                {
-                    "name": "claimants_requested_deposit",
-                    "type": "bool"
-                },
-                {
                     "name": "claimants_socials",
                     "type": "pair_name_string[]"
                 },
@@ -264,18 +282,6 @@
                     "type": "uint16[]"
                 },
                 {
-                    "name": "respondent_deposit",
-                    "type": "asset"
-                },
-                {
-                    "name": "respondent_deposit_paid",
-                    "type": "asset"
-                },
-                {
-                    "name": "respondent_requested_deposit",
-                    "type": "bool"
-                },
-                {
                     "name": "case_winner",
                     "type": "name"
                 },
@@ -302,8 +308,17 @@
                 {
                     "name": "ipfs_cid_verdict",
                     "type": "string[]"
+                },
+                {
+                    "name": "deposit_for_respondent",
+                    "type": "asset"
                 }
             ]
+        },
+        {
+            "name": "clearcomm",
+            "base": "",
+            "fields": []
         },
         {
             "name": "closecase",
@@ -320,7 +335,7 @@
             ]
         },
         {
-            "name": "communities",
+            "name": "commstb",
             "base": "",
             "fields": [
                 {
@@ -330,7 +345,7 @@
             ]
         },
         {
-            "name": "configtab",
+            "name": "configtb",
             "base": "",
             "fields": [
                 {
@@ -366,6 +381,10 @@
                     "type": "uint8"
                 },
                 {
+                    "name": "drpapp_cut",
+                    "type": "uint8"
+                },
+                {
                     "name": "time_for_arb_to_accept_the_case",
                     "type": "uint32"
                 },
@@ -383,6 +402,10 @@
             "name": "createcase",
             "base": "",
             "fields": [
+                {
+                    "name": "deposit_for_respondent",
+                    "type": "asset"
+                },
                 {
                     "name": "community",
                     "type": "name"
@@ -432,14 +455,6 @@
                     "type": "string[]"
                 },
                 {
-                    "name": "claimants_deposit",
-                    "type": "asset"
-                },
-                {
-                    "name": "claimants_requested_deposit",
-                    "type": "bool"
-                },
-                {
                     "name": "claimants_socials",
                     "type": "pair_name_string[]"
                 },
@@ -486,9 +501,31 @@
             ]
         },
         {
+            "name": "deposit",
+            "base": "",
+            "fields": [
+                {
+                    "name": "case_id",
+                    "type": "uint64"
+                },
+                {
+                    "name": "respondents_payment",
+                    "type": "asset"
+                },
+                {
+                    "name": "claimants_payment",
+                    "type": "asset"
+                }
+            ]
+        },
+        {
             "name": "giveverdict",
             "base": "",
             "fields": [
+                {
+                    "name": "case_winner",
+                    "type": "name"
+                },
                 {
                     "name": "lead_arbitrator",
                     "type": "name"
@@ -576,14 +613,6 @@
                     "type": "string[]"
                 },
                 {
-                    "name": "claimants_deposit",
-                    "type": "asset"
-                },
-                {
-                    "name": "claimants_requested_deposit",
-                    "type": "bool"
-                },
-                {
                     "name": "claimants_socials",
                     "type": "pair_name_string[]"
                 },
@@ -594,6 +623,82 @@
                 {
                     "name": "other_info_about_respondent",
                     "type": "string"
+                }
+            ]
+        },
+        {
+            "name": "modarbscuts",
+            "base": "",
+            "fields": [
+                {
+                    "name": "lead_arb_percentage",
+                    "type": "uint8"
+                },
+                {
+                    "name": "drp_app_percentage",
+                    "type": "uint8"
+                },
+                {
+                    "name": "min_arbitrators",
+                    "type": "uint8"
+                },
+                {
+                    "name": "max_arbitrators",
+                    "type": "uint8"
+                }
+            ]
+        },
+        {
+            "name": "moddeposit",
+            "base": "",
+            "fields": [
+                {
+                    "name": "community",
+                    "type": "name"
+                },
+                {
+                    "name": "new_min_deposit",
+                    "type": "asset"
+                }
+            ]
+        },
+        {
+            "name": "modifycomm",
+            "base": "",
+            "fields": [
+                {
+                    "name": "community",
+                    "type": "name"
+                },
+                {
+                    "name": "new_community_name",
+                    "type": "string"
+                },
+                {
+                    "name": "new_community_description",
+                    "type": "string"
+                },
+                {
+                    "name": "new_rec_num_of_arb_and_claim_type",
+                    "type": "pair_string_uint8[]"
+                }
+            ]
+        },
+        {
+            "name": "modifytimes",
+            "base": "",
+            "fields": [
+                {
+                    "name": "time_for_arb_to_accept",
+                    "type": "uint32"
+                },
+                {
+                    "name": "time_for_respondent_to_acknowledge",
+                    "type": "uint32"
+                },
+                {
+                    "name": "time_for_respondent_to_respond",
+                    "type": "uint32"
                 }
             ]
         },
@@ -692,14 +797,6 @@
                 {
                     "name": "suspension_counter",
                     "type": "uint16[]"
-                },
-                {
-                    "name": "respondent_deposit",
-                    "type": "asset"
-                },
-                {
-                    "name": "respondent_requested_deposit",
-                    "type": "bool"
                 }
             ]
         },
@@ -773,6 +870,16 @@
             "ricardian_contract": ""
         },
         {
+            "name": "addevidence",
+            "type": "addevidence",
+            "ricardian_contract": ""
+        },
+        {
+            "name": "clearcomm",
+            "type": "clearcomm",
+            "ricardian_contract": ""
+        },
+        {
             "name": "closecase",
             "type": "closecase",
             "ricardian_contract": ""
@@ -800,6 +907,26 @@
         {
             "name": "joincase",
             "type": "joincase",
+            "ricardian_contract": ""
+        },
+        {
+            "name": "modarbscuts",
+            "type": "modarbscuts",
+            "ricardian_contract": ""
+        },
+        {
+            "name": "moddeposit",
+            "type": "moddeposit",
+            "ricardian_contract": ""
+        },
+        {
+            "name": "modifycomm",
+            "type": "modifycomm",
+            "ricardian_contract": ""
+        },
+        {
+            "name": "modifytimes",
+            "type": "modifytimes",
             "ricardian_contract": ""
         },
         {
@@ -832,22 +959,29 @@
             "key_types": []
         },
         {
-            "name": "casestab",
-            "type": "casestab",
+            "name": "casestb",
+            "type": "casestb",
             "index_type": "i64",
             "key_names": [],
             "key_types": []
         },
         {
-            "name": "communities",
-            "type": "communities",
+            "name": "commstb",
+            "type": "commstb",
             "index_type": "i64",
             "key_names": [],
             "key_types": []
         },
         {
-            "name": "configtab",
-            "type": "configtab",
+            "name": "configtb",
+            "type": "configtb",
+            "index_type": "i64",
+            "key_names": [],
+            "key_types": []
+        },
+        {
+            "name": "deposit",
+            "type": "deposit",
             "index_type": "i64",
             "key_names": [],
             "key_types": []

@@ -31,6 +31,7 @@ public:
     };
     using rng_t = singleton<"rng"_n, rng>;
 
+/*
     TABLE casestab
     {
         name claimant_name;
@@ -81,8 +82,66 @@ public:
     };
     typedef eosio::multi_index<"casestab"_n, casestab,
     indexed_by<"bynumber"_n, const_mem_fun<casestab, uint64_t, &casestab::get_by_number>>> cases_t;
+*/
 
-    TABLE configtab 
+    TABLE casestb
+    {
+        name claimant_name;
+        uint64_t case_id;
+        time_point_sec case_start_time;
+        time_point_sec all_arbs_accepted_time;
+        uint64_t number;
+        uint8_t stage;
+        uint8_t nr_of_requested_arbitrators;
+        string case_description;
+        map<name, uint8_t> arbitrators;
+        vector<string> claims;
+        vector<asset> fine;
+        vector<asset> relief;
+        vector<uint16_t> suspension;
+        bool request_ban;
+        string claimants_evidence_description;
+        vector<string> claimants_ipfs_cids;
+        map<name, string> claimants_socials;
+        map<name, string> respondents_socials;
+        name respondents_account;
+        string other_info_about_respondent;
+        bool accusations_accepted_by_respondent;
+        time_point_sec case_acknowledged_by_respondent_time;
+        bool case_acknowledged_by_respondent;
+        string respondents_response;
+        vector<string> respondents_ipfs_cids;
+        string respondents_evidents_description;
+        vector<asset> fine_counter;
+        vector<asset> relief_counter;
+        vector<uint16_t> suspension_counter;
+        name case_winner;
+        vector<asset> fine_verdict;
+        vector<asset> relief_verdict;
+        vector<uint16_t> suspension_verdict;
+        string verdict_description;
+        map<name, uint8_t> arbitrator_and_signatures;
+        vector<string> ipfs_cid_verdict;
+        asset deposit_for_respondent;
+
+        uint64_t primary_key() const { return case_id; }
+        uint64_t get_by_number() const { return number; }
+    };
+    typedef eosio::multi_index<"casestb"_n, casestb,
+    indexed_by<"bynumber"_n, const_mem_fun<casestb, uint64_t, &casestb::get_by_number>>> cases_t;
+
+    TABLE deposit 
+    {
+        uint64_t case_id;
+        asset respondents_payment;
+        asset claimants_payment;
+
+        uint64_t primary_key() const { return case_id; }
+    };
+    typedef eosio::multi_index<"deposit"_n, deposit> deposit_t;
+
+
+    TABLE configtb 
     {
         name community;
         string community_name;
@@ -92,20 +151,21 @@ public:
         uint8_t max_arb_per_case;
         asset min_deposit;
         uint8_t lead_arb_cut;
+        uint8_t drpapp_cut;
         uint32_t time_for_arb_to_accept_the_case;
         uint32_t time_for_respondent_to_acknowledge_the_case;
         uint32_t time_for_respondent_to_respond_the_case;
 
         uint64_t primary_key() const { return community.value; }
     };
-    typedef eosio::multi_index<"configtab"_n, configtab> config_t;
+    typedef eosio::multi_index<"configtb"_n, configtb> config_t;
 
-    TABLE communities 
+    TABLE commstb 
     {
         name community;
         uint64_t primary_key() const { return community.value; }
     };
-    typedef eosio::multi_index<"communities"_n, communities> communities_t;
+    typedef eosio::multi_index<"commstb"_n, commstb> communities_t;
 
     TABLE arbitrators {
         name arbitrator;
@@ -121,18 +181,24 @@ public:
     ACTION addconfig(name community);
     */
     //real
+    // In your .hpp file within the class definition
+    ACTION addevidence(name community, uint64_t case_id, name claimant, string claimants_evidence_desc, vector<string> claimants_ipfs_cids);
+    ACTION modifytimes(uint32_t time_for_arb_to_accept, uint32_t time_for_respondent_to_acknowledge, uint32_t time_for_respondent_to_respond);
+    ACTION modarbscuts(uint8_t lead_arb_percentage, uint8_t drp_app_percentage, uint8_t min_arbitrators, uint8_t max_arbitrators);
+    ACTION modifycomm(name community, string new_community_name, string new_community_description, map<string, uint8_t> new_rec_num_of_arb_and_claim_type);
+    ACTION moddeposit(name community, asset new_min_deposit);
     ACTION delcase(name community,uint64_t case_id);
     ACTION addarbs(name community, vector<name> arbitrator_names);
     ACTION delarbs(name community, vector<name> arbitrator_names);
-    ACTION createcase(name community, name claimant_name, uint64_t number, uint8_t nr_of_requested_arbitrators, string case_description, vector<string> claims, vector<asset> fine, vector<asset> relief, vector<uint16_t> suspension, bool request_ban, string claimants_evidence_description, vector<string> claimants_ipfs_cids, asset claimants_deposit, bool claimants_requested_deposit, map<name, string> claimants_socials, map<name, string> respondents_socials, name respondents_account, string other_info_about_respondent);
+    ACTION createcase(asset deposit_for_respondent ,name community, name claimant_name, uint64_t number, uint8_t nr_of_requested_arbitrators, string case_description, vector<string> claims, vector<asset> fine, vector<asset> relief, vector<uint16_t> suspension, bool request_ban, string claimants_evidence_description, vector<string> claimants_ipfs_cids, map<name, string> claimants_socials, map<name, string> respondents_socials, name respondents_account, string other_info_about_respondent);
     ACTION acceptarbtrn(name arbitrator, uint64_t case_id, name community);
     ACTION acknwdgcase(name respondent, name community, uint64_t case_id);
     ACTION swaparb(uint64_t case_id, name community);
-    ACTION addcomm(name community, string community_name, string community_description, map<string, uint8_t> rec_num_of_arb_and_claim_type, uint8_t min_arb_per_case, uint8_t max_arb_per_case, asset min_deposit, uint8_t lead_arb_cut, uint32_t time_for_arb_to_accept_the_case, uint32_t time_for_respondent_to_acknowledge_the_case, uint32_t time_for_respondent_to_respond_the_case);
-    ACTION joincase(name community, name claimant_name, uint64_t case_id, uint8_t nr_of_requested_arbitrators, string case_description, vector<string> claims, vector<asset> fine, vector<asset> relief, vector<uint16_t> suspension, bool request_ban, string claimants_evidence_description, vector<string> claimants_ipfs_cids, asset claimants_deposit, bool claimants_requested_deposit, map<name, string> claimants_socials, map<name, string> respondents_socials, string other_info_about_respondent);
-    ACTION giveverdict(name lead_arbitrator, name community, uint64_t case_id, vector<asset> fine_verdict, vector<asset> relief_verdict, vector<uint16_t> suspension_verdict, string verdict_description, vector<string> ipfs_cid_verdict);
+    ACTION addcomm(name community, string community_name, string community_description, map<string, uint8_t> rec_num_of_arb_and_claim_type, uint8_t min_arb_per_case, uint8_t max_arb_per_case, asset min_deposit, uint8_t lead_arb_cut, uint8_t drpapp_cut, uint32_t time_for_arb_to_accept_the_case, uint32_t time_for_respondent_to_acknowledge_the_case, uint32_t time_for_respondent_to_respond_the_case);
+    ACTION joincase(name community, name claimant_name, uint64_t case_id, uint8_t nr_of_requested_arbitrators, string case_description, vector<string> claims, vector<asset> fine, vector<asset> relief, vector<uint16_t> suspension, bool request_ban, string claimants_evidence_description, vector<string> claimants_ipfs_cids, map<name, string> claimants_socials, map<name, string> respondents_socials, string other_info_about_respondent);
+    ACTION giveverdict(name case_winner,name lead_arbitrator, name community, uint64_t case_id, vector<asset> fine_verdict, vector<asset> relief_verdict, vector<uint16_t> suspension_verdict, string verdict_description, vector<string> ipfs_cid_verdict);
     ACTION acceptaccu(uint64_t case_id, name community, name respondent_account);
-    ACTION respondcase(uint64_t case_id, name community, string respondents_response, vector<string> respondents_ipfs_cids, string respondents_evidents_description, vector<asset> fine_counter, vector<asset> relief_counter, vector<uint16_t> suspension_counter, asset respondent_deposit, bool respondent_requested_deposit); 
+    ACTION respondcase(uint64_t case_id, name community, string respondents_response, vector<string> respondents_ipfs_cids, string respondents_evidents_description, vector<asset> fine_counter, vector<asset> relief_counter, vector<uint16_t> suspension_counter); 
     ACTION closecase(uint64_t case_id, name community);
     ACTION rejectarbtrn(name arbitrator, uint64_t case_id, name community);
     ACTION signverdict(name community, name arbitrator, uint64_t case_id);

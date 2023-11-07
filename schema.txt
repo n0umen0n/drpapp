@@ -1,8 +1,22 @@
 addcommu
 
 rec_num_of_arb_and_claim_type
-[  {"key": "Violation of my personal space", "value": "3"},  {"key": "Violation of contribution agreement", "value": "4"}]
+[  {"key": "File for Execution of Unexecuted Case With New Information", "value": "3"},  {"key": "Misappropriation or Misuse of Information or other IP", "value": "3"}, {"key": "Harm or Injury Seeking Relief", "value": "3"}
+,{"key": "Arbitrator Wrongful Action", "value": "3"},{"key": "Failure to Deliver Project (in part/ or as a whole)", "value": "3"},{"key": "Breach of EdenOnEOS Bylaws", "value": "3"},{"key": "Miscellaneous", "value": "3"}
+]
 [  {"key": "Telegram", "value": "cxzvnk"},  {"key": "Violation of contribution agreement", "value": "4"}]
+
+[  {"key": "Violation of my personal space", "value": "3"},  {"key": "Violation of contribution agreement", "value": "4"}]
+
+
+File for Execution of Unexecuted Case With New Information
+Misappropriation or Misuse of Information or other IP (intellectual property)
+Harm or Injury Seeking Relief
+Arbitrator Wrongful Action
+Failure to Deliver Project (in part/ or as a whole)
+Breach of EdenOnEOS Bylaws
+Miscellaneous
+
 
 
 dune -- cdt-cpp -abigen /host/Users/vlad/Desktop/drpapp/drpapp.cpp -o /host/Users/vlad/Desktop/drpapp/drpapp.wasm
@@ -12,6 +26,7 @@ dune -- cdt-cpp -abigen /host/Users/vlad/Desktop/drpapp/drpapp.cpp -o /host/User
  cleos -u https://eos.greymass.com push action eosio powerup '{"payer": "vladislav.x", "receiver":"drpappdrpapp", "days":1, "net_frac":2000000, "cpu_frac":200000000, "max_payment":"0.1000 EOS"}' -p vladislav.x 
  cleos -u https://eos.greymass.com push action eosio powerup '{"payer": "drpappdrpapp", "receiver":"drpappdrpapp", "days":1, "net_frac":2000000, "cpu_frac":200000000, "max_payment":"0.1000 EOS"}' -p drpappdrpapp
  cleos -u https://eos.greymass.com push action eosio powerup '{"payer": "drpappdrpapp", "receiver":"vladislav.x", "days":1, "net_frac":2000000, "cpu_frac":200000000, "max_payment":"0.1000 EOS"}' -p drpappdrpapp
+ cleos -u https://eos.greymass.com push action eosio powerup '{"payer": "vladislav.x", "receiver":"ironscimitar", "days":1, "net_frac":2000000, "cpu_frac":200000000, "max_payment":"0.1000 EOS"}' -p vladislav.x 
 
 cleos -u https://eos.greymass.com push action eosio buyram '["drpappdrpapp", "drpappdrpapp", "5.0000 EOS"]' -p drpappdrpapp@active
 
