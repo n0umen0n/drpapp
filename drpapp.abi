@@ -122,6 +122,10 @@
                 {
                     "name": "time_for_respondent_to_respond_the_case",
                     "type": "uint32"
+                },
+                {
+                    "name": "time_for_arbitrators_to_give_verdict",
+                    "type": "uint32"
                 }
             ]
         },
@@ -162,7 +166,7 @@
             ]
         },
         {
-            "name": "casestb",
+            "name": "casestbbb",
             "base": "",
             "fields": [
                 {
@@ -302,6 +306,10 @@
                     "type": "string"
                 },
                 {
+                    "name": "ban_verdict",
+                    "type": "bool"
+                },
+                {
                     "name": "arbitrator_and_signatures",
                     "type": "pair_name_uint8[]"
                 },
@@ -312,6 +320,10 @@
                 {
                     "name": "deposit_for_respondent",
                     "type": "asset"
+                },
+                {
+                    "name": "lead_arbitrator",
+                    "type": "name"
                 }
             ]
         },
@@ -345,7 +357,7 @@
             ]
         },
         {
-            "name": "configtb",
+            "name": "configtbb",
             "base": "",
             "fields": [
                 {
@@ -394,6 +406,10 @@
                 },
                 {
                     "name": "time_for_respondent_to_respond_the_case",
+                    "type": "uint32"
+                },
+                {
+                    "name": "time_for_arbitrators_to_give_verdict",
                     "type": "uint32"
                 }
             ]
@@ -557,6 +573,10 @@
                 {
                     "name": "ipfs_cid_verdict",
                     "type": "string[]"
+                },
+                {
+                    "name": "ban_verdict",
+                    "type": "bool"
                 }
             ]
         },
@@ -698,6 +718,10 @@
                 },
                 {
                     "name": "time_for_respondent_to_respond",
+                    "type": "uint32"
+                },
+                {
+                    "name": "time_for_arbitrators_to_give_verdict",
                     "type": "uint32"
                 }
             ]
@@ -841,6 +865,20 @@
                     "type": "name"
                 }
             ]
+        },
+        {
+            "name": "timetoclose",
+            "base": "",
+            "fields": [
+                {
+                    "name": "case_id",
+                    "type": "uint64"
+                },
+                {
+                    "name": "community",
+                    "type": "name"
+                }
+            ]
         }
     ],
     "actions": [
@@ -948,6 +986,11 @@
             "name": "swaparb",
             "type": "swaparb",
             "ricardian_contract": ""
+        },
+        {
+            "name": "timetoclose",
+            "type": "timetoclose",
+            "ricardian_contract": ""
         }
     ],
     "tables": [
@@ -959,8 +1002,8 @@
             "key_types": []
         },
         {
-            "name": "casestb",
-            "type": "casestb",
+            "name": "casestbbb",
+            "type": "casestbbb",
             "index_type": "i64",
             "key_names": [],
             "key_types": []
@@ -973,8 +1016,8 @@
             "key_types": []
         },
         {
-            "name": "configtb",
-            "type": "configtb",
+            "name": "configtbb",
+            "type": "configtbb",
             "index_type": "i64",
             "key_names": [],
             "key_types": []

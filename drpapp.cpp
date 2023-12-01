@@ -29,7 +29,7 @@ void drpapp::addevidence(name community, uint64_t case_id, name claimant, string
 
 
 // Action to modify time settings
-void drpapp::modifytimes(uint32_t time_for_arb_to_accept, uint32_t time_for_respondent_to_acknowledge, uint32_t time_for_respondent_to_respond) {
+void drpapp::modifytimes(uint32_t time_for_arb_to_accept, uint32_t time_for_respondent_to_acknowledge, uint32_t time_for_respondent_to_respond, uint32_t time_for_arbitrators_to_give_verdict) {
     require_auth(_self);
     
     config_t config_table(_self, _self.value);
@@ -40,6 +40,7 @@ void drpapp::modifytimes(uint32_t time_for_arb_to_accept, uint32_t time_for_resp
         c.time_for_arb_to_accept_the_case = time_for_arb_to_accept;
         c.time_for_respondent_to_acknowledge_the_case = time_for_respondent_to_acknowledge;
         c.time_for_respondent_to_respond_the_case = time_for_respondent_to_respond;
+        c.time_for_arbitrators_to_give_verdict = time_for_arbitrators_to_give_verdict;
     });
 }
 
@@ -115,8 +116,6 @@ void drpapp::createcase(asset deposit_for_respondent,name community, name claima
     check(depo_itr != deposit_table.end(), "Case with the given ID doesn't exist.");
     check(depo_itr->claimants_payment.amount >= config_itr->min_deposit.amount, "Not paid.");
 
-
-
     // Check the string length for each claim and each IPFS CID
     for(const auto& claim : claims) 
     {
@@ -161,7 +160,16 @@ void drpapp::createcase(asset deposit_for_respondent,name community, name claima
       selected_arbitrators[all_arbitrators[i]] = 0;
     } 
 
-    //asset zero_usdt = asset(0, symbol("USDT", 4));
+    vector<name> arbitrator_keys;
+    for (int i = 0; i < nr_of_requested_arbitrators && i < all_arbitrators.size(); i++) 
+        {
+             selected_arbitrators[all_arbitrators[i]] = 0;
+             arbitrator_keys.push_back(all_arbitrators[i]);
+        }
+
+    // Randomly pick a lead arbitrator from the selected arbitrators
+    uint32_t lead_arb_index = seed % arbitrator_keys.size(); // Ensure seed is appropriately randomized
+    name lead_arbitrator = arbitrator_keys[lead_arb_index];
 
     cases_table.emplace(_self, [&](auto& row) {
         row.case_id = cases_table.available_primary_key();
@@ -184,6 +192,7 @@ void drpapp::createcase(asset deposit_for_respondent,name community, name claima
         row.respondents_account = respondents_account;
         row.other_info_about_respondent = other_info_about_respondent;
         row.deposit_for_respondent = deposit_for_respondent;
+        row.lead_arbitrator = lead_arbitrator;
     });
 
 }
@@ -273,6 +282,8 @@ void drpapp::joincase(name community, name claimant_name, uint64_t case_id, uint
         row.respondents_socials = respondents_socials;
         row.respondents_account = old_case_itr->respondents_account;
         row.other_info_about_respondent = other_info_about_respondent;
+        row.deposit_for_respondent = old_case_itr->deposit_for_respondent;
+        row.lead_arbitrator = old_case_itr->lead_arbitrator;
     });
 }
 
@@ -464,17 +475,6 @@ void drpapp::acknwdgcase(name respondent, name community, uint64_t case_id)
     // Fetch the cases table with the community as the scope.
     cases_t cases_table(get_self(), community.value);
 
-    // Check against min_deposit
-    config_t config_table(_self, _self.value);
-    auto config_itr = config_table.find(_self.value);
-    check(config_itr != config_table.end(), "Community configuration not found.");
-
-    //Check if respondent has paid
-    deposit_t deposit_table(_self, community.value);
-    auto depo_itr = deposit_table.find(case_id);
-    check(depo_itr != deposit_table.end(), "Case with the given ID doesn't exist.");
-    check(depo_itr->respondents_payment.amount >= config_itr->min_deposit.amount, "Not paid.");
-
     // Find the case using the provided case_id.
     auto case_itr = cases_table.find(case_id);
     check(case_itr != cases_table.end(), "Case not found.");
@@ -492,7 +492,7 @@ void drpapp::acknwdgcase(name respondent, name community, uint64_t case_id)
         row.stage = 3;
     });
 }
-
+/*
 void drpapp::giveverdict(
     name case_winner,
     name lead_arbitrator,
@@ -502,10 +502,9 @@ void drpapp::giveverdict(
     vector<asset> relief_verdict,
     vector<uint16_t> suspension_verdict,
     string verdict_description,
-    vector<string> ipfs_cid_verdict
-) 
-
-{
+    vector<string> ipfs_cid_verdict,
+    bool ban_verdict
+) {
     // Ensure the action is triggered by the lead arbitrator
     require_auth(lead_arbitrator);
 
@@ -513,8 +512,8 @@ void drpapp::giveverdict(
     auto case_itr = cases_table.find(case_id);
     check(case_itr != cases_table.end(), "Case with the given ID doesn't exist.");
 
-    // Ensure that the lead_arbitrator is the first in the arbitrators map
-    check(case_itr->arbitrators.begin()->first == lead_arbitrator, "Only the lead arbitrator can give a verdict.");
+    // Ensure that the lead_arbitrator is the same as in the case record
+    check(case_itr->lead_arbitrator == lead_arbitrator, "Only the lead arbitrator can give a verdict.");
 
     // Update the case with the given verdict details
     cases_table.modify(case_itr, _self, [&](auto& row) {
@@ -525,18 +524,60 @@ void drpapp::giveverdict(
         row.ipfs_cid_verdict = ipfs_cid_verdict;
         row.stage = 5;
         row.case_winner = case_winner;
+        row.ban_verdict = ban_verdict;
 
         // Reset all arbitrator signatures to 0, indicating they have not signed
-        for(const auto& [arb_name, _]: case_itr->arbitrators) 
+        for(auto& [arb_name, signed_status]: row.arbitrator_and_signatures) 
         {
-            row.arbitrator_and_signatures[arb_name] = 0;
+            signed_status = 0;
         }
 
         // Set the lead arbitrator's signature status to 1
         row.arbitrator_and_signatures[lead_arbitrator] = 1;
     });
 }
+*/
 
+void drpapp::giveverdict(
+    name case_winner,
+    name lead_arbitrator,
+    name community,
+    uint64_t case_id,
+    vector<asset> fine_verdict,
+    vector<asset> relief_verdict,
+    vector<uint16_t> suspension_verdict,
+    string verdict_description,
+    vector<string> ipfs_cid_verdict,
+    bool ban_verdict
+) {
+    // Ensure the action is triggered by the lead arbitrator
+    require_auth(lead_arbitrator);
+
+    cases_t cases_table(_self, community.value);
+    auto case_itr = cases_table.find(case_id);
+    check(case_itr != cases_table.end(), "Case with the given ID doesn't exist.");
+
+    // Ensure that the lead_arbitrator is the same as in the case record
+    check(case_itr->lead_arbitrator == lead_arbitrator, "Only the lead arbitrator can give a verdict.");
+
+    // Update the case with the given verdict details
+    cases_table.modify(case_itr, _self, [&](auto& row) {
+        row.fine_verdict = fine_verdict;
+        row.relief_verdict = relief_verdict;
+        row.suspension_verdict = suspension_verdict;
+        row.verdict_description = verdict_description;
+        row.ipfs_cid_verdict = ipfs_cid_verdict;
+        row.stage = 5;
+        row.case_winner = case_winner;
+        row.ban_verdict = ban_verdict;
+
+        // Reset and update arbitrator signatures
+        row.arbitrator_and_signatures.clear();
+        for (const auto& arb : row.arbitrators) {
+            row.arbitrator_and_signatures[arb.first] = (arb.first == lead_arbitrator) ? 1 : 0;
+        }
+    });
+}
 
 void drpapp::signverdict(name community, name arbitrator, uint64_t case_id) 
 {
@@ -545,11 +586,21 @@ void drpapp::signverdict(name community, name arbitrator, uint64_t case_id)
     cases_t cases_table(_self, community.value);
     auto case_itr = cases_table.find(case_id);
     check(case_itr != cases_table.end(), "Case with the given ID doesn't exist.");
+    check(case_itr->stage < 6, "The case is already closed or in the final stage.");
+
 
     // Check if the arbitrator exists in the arbitrator_and_signatures map
     auto arb_itr = case_itr->arbitrator_and_signatures.find(arbitrator);
     check(arb_itr != case_itr->arbitrator_and_signatures.end(), "Arbitrator not found in the case.");
     check(arb_itr->second == 0, "Arbitrator has already signed.");
+
+
+
+/*
+    // Check if the arbitrator exists in the arbitrator_and_signatures map
+    auto arb_itr = case_itr->arbitrators.find(arbitrator);
+    check(arb_itr != case_itr->arbitrators.end(), "Arbitrator not found in the case.");
+*/
 
     // Modify the arbitrator's signature status
     cases_table.modify(case_itr, _self, [&](auto& row) {
@@ -665,7 +716,8 @@ void drpapp::addcomm(
     uint8_t drpapp_cut,
     uint32_t time_for_arb_to_accept_the_case,
     uint32_t time_for_respondent_to_acknowledge_the_case,
-    uint32_t time_for_respondent_to_respond_the_case) 
+    uint32_t time_for_respondent_to_respond_the_case,
+    uint32_t time_for_arbitrators_to_give_verdict) 
 {
     // Initialize the communities table with the scope of _self (contract's account name)
     communities_t communities_table(get_self(), get_self().value);
@@ -700,6 +752,8 @@ void drpapp::addcomm(
         row.time_for_arb_to_accept_the_case = time_for_arb_to_accept_the_case;
         row.time_for_respondent_to_acknowledge_the_case = time_for_respondent_to_acknowledge_the_case;
         row.time_for_respondent_to_respond_the_case = time_for_respondent_to_respond_the_case;
+        row.time_for_arbitrators_to_give_verdict = time_for_arbitrators_to_give_verdict;
+
     });
 }
 
@@ -738,7 +792,7 @@ void drpapp::assetin(name from, name to, asset quantity, string memo) {
             
             auto depo_itr = deposit_table.find(case_id_or_code);
             deposit_table.modify(depo_itr, _self, [&](auto& row) {
-                row.respondents_payment += quantity;
+                row.respondents_payment.amount += quantity.amount;
             });
         }
     }
@@ -785,6 +839,17 @@ void drpapp::respondcase(
     vector<uint16_t> suspension_counter
     ) 
 {
+
+    // Check against min_deposit
+    config_t config_table(_self, _self.value);
+    auto config_itr = config_table.find(_self.value);
+    check(config_itr != config_table.end(), "Community configuration not found.");
+
+    //Check if respondent has paid
+    deposit_t deposit_table(_self, community.value);
+    auto depo_itr = deposit_table.find(case_id);
+    check(depo_itr != deposit_table.end(), "Case with the given ID doesn't exist.");
+    check(depo_itr->respondents_payment.amount >= config_itr->min_deposit.amount, "Not paid.");
 
     cases_t cases_table(get_self(), community.value); // Initialize the cases table with the scope of community
 
@@ -839,6 +904,52 @@ void drpapp::closecase(uint64_t case_id, name community)
     }
 }
 
+void drpapp::timetoclose(uint64_t case_id, name community) {
+    require_auth(_self); // Or any other appropriate authorization
+
+    // Access the cases table
+    cases_t cases(_self, community.value);
+    auto case_itr = cases.find(case_id);
+    check(case_itr != cases.end(), "Case not found");
+
+    // Access the config table
+    config_t configs(_self, _self.value);
+    auto config_itr = configs.find(community.value);
+    check(config_itr != configs.end(), "Config for community not found");
+
+    // Calculate the deadline
+    time_point_sec current_time = current_time_point();
+    time_point_sec deadline = case_itr->case_start_time + seconds(config_itr->time_for_arb_to_accept_the_case);
+
+    // Check if the current time is past the deadline
+    if (current_time < deadline) {
+        check(false, "Not enough time has passed since the arbitrators accepted the case.");
+    }
+
+    // Calculate the number of signed arbitrators
+    uint32_t signed_arbs = 0;
+    for (auto const& arb : case_itr->arbitrator_and_signatures) {
+        if (arb.second == 1) {
+            signed_arbs++;
+        }
+    }
+
+    // Determine the required majority (2/3 of arbitrators)
+    uint32_t required_majority = (2 * case_itr->arbitrators.size() + 2) / 3; // 2/3 majority, the +2 ensures proper rounding up
+
+    // Update the stage based on the conditions
+    if (signed_arbs >= required_majority) {
+        // 2/3 or more arbitrators have signed
+        cases.modify(case_itr, _self, [&](auto& row) {
+            row.stage = 6;
+        });
+    } else {
+        // Less than 2/3 arbitrators have signed
+        cases.modify(case_itr, _self, [&](auto& row) {
+            row.stage = 7;
+        });
+    }
+}
 
 
 /*

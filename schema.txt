@@ -1,4 +1,11 @@
-addcommu
+
+
+
+
+cleos -u https://eos.greymass.com push action nova3mindweb createquiz '{"affiliate": "vladislav.x", "max_users":0, "quiz_description":"test", "question_id":[0,1,2], "answers":[["test","test1","testanw"],["testanw","testansw3"],["testanw21","testanw33"]], "correct_answers":[[0,0,1],[0,1],[0,1]], "token_contract":"eosio.token", "correct_answers_perc":50, "questions":["question1","question2","question3"] }' -p vladislav.x
+
+
+
 
 rec_num_of_arb_and_claim_type
 [  {"key": "File for Execution of Unexecuted Case With New Information", "value": "3"},  {"key": "Misappropriation or Misuse of Information or other IP", "value": "3"}, {"key": "Harm or Injury Seeking Relief", "value": "3"}
@@ -22,6 +29,7 @@ Miscellaneous
 dune -- cdt-cpp -abigen /host/Users/vlad/Desktop/drpapp/drpapp.cpp -o /host/Users/vlad/Desktop/drpapp/drpapp.wasm
 
  cleos -u https://eos.greymass.com set contract drpappdrpapp /Users/vlad/Desktop/drpapp drpapp.wasm drpapp.abi 
+ cleos -u https://eos.greymass.com push action eosio powerup '{"payer": "vladislav.x", "receiver":"lennyaccount", "days":1, "net_frac":2000000, "cpu_frac":200000000, "max_payment":"0.1000 EOS"}' -p vladislav.x 
 
  cleos -u https://eos.greymass.com push action eosio powerup '{"payer": "vladislav.x", "receiver":"drpappdrpapp", "days":1, "net_frac":2000000, "cpu_frac":200000000, "max_payment":"0.1000 EOS"}' -p vladislav.x 
  cleos -u https://eos.greymass.com push action eosio powerup '{"payer": "drpappdrpapp", "receiver":"drpappdrpapp", "days":1, "net_frac":2000000, "cpu_frac":200000000, "max_payment":"0.1000 EOS"}' -p drpappdrpapp
