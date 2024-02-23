@@ -636,7 +636,7 @@ void drpapp::signverdict(name community, name arbitrator, uint64_t case_id)
             action(permission_level{_self, "active"_n}, "tethertether"_n, "transfer"_n, make_tuple(_self, case_itr->claimant_name, half_claimant_deposit, string("Return after negotiation"))).send();
             action(permission_level{_self, "active"_n}, "tethertether"_n, "transfer"_n, make_tuple(_self, case_itr->respondents_account, half_respondent_deposit, string("Return after negotiation"))).send();
 
-            // The sum to distribute among arbitrators and drpfeedrpfee
+            // The sum to distribute among arbitrators and feedrpfeedrp
             asset sum_to_distribute = half_claimant_deposit + half_respondent_deposit;
 
             int64_t total_amount = sum_to_distribute.amount;
@@ -650,7 +650,7 @@ void drpapp::signverdict(name community, name arbitrator, uint64_t case_id)
             asset drpfees_amount = asset(drpfees_share, sum_to_distribute.symbol);
 
             action(permission_level{_self, "active"_n}, "tethertether"_n, "transfer"_n, make_tuple(_self, case_itr->arbitrators.begin()->first, lead_arb_amount, string("Lead Arbitrator Payout for Negotiated Case"))).send();
-            action(permission_level{_self, "active"_n}, "tethertether"_n, "transfer"_n, make_tuple(_self, "drpfeedrpfee"_n, drpfees_amount, string("DRP Fees Payout for Negotiated Case"))).send();
+            action(permission_level{_self, "active"_n}, "tethertether"_n, "transfer"_n, make_tuple(_self, "feedrpfeedrp"_n, drpfees_amount, string("DRP Fees Payout for Negotiated Case"))).send();
 
             // Remaining arbitrators
             for (auto it = ++(case_itr->arbitrators.begin()); it != case_itr->arbitrators.end(); ++it) 
@@ -685,7 +685,7 @@ void drpapp::signverdict(name community, name arbitrator, uint64_t case_id)
         asset drpfees_amount = asset(drpfees_share, loser_deposit.symbol);
 
         action(permission_level{_self, "active"_n}, "tethertether"_n, "transfer"_n, make_tuple(_self, case_itr->arbitrators.begin()->first, lead_arb_amount, string("Lead Arbitrator Payout"))).send();
-        action(permission_level{_self, "active"_n}, "tethertether"_n, "transfer"_n, make_tuple(_self, "drpfeedrpfee"_n, drpfees_amount, string("DRP Fees Payout"))).send();
+        action(permission_level{_self, "active"_n}, "tethertether"_n, "transfer"_n, make_tuple(_self, "feedrpfeedrp"_n, drpfees_amount, string("DRP Fees Payout"))).send();
 
         // Remaining arbitrators
         for (auto it = ++(case_itr->arbitrators.begin()); it != case_itr->arbitrators.end(); ++it) 
